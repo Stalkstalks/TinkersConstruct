@@ -2,6 +2,7 @@ package tconstruct.tools.logic;
 
 import java.lang.ref.WeakReference;
 import mantle.blocks.abstracts.InventoryLogic;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
@@ -93,6 +94,27 @@ public class CraftingStationLogic extends InventoryLogic implements ISidedInvent
         return new int[] {};
     }
 
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer player)
+    {
+        return isUseableByPlayer(player, this.getInventories()) && super.isUseableByPlayer(player);
+    }
+
+    public static boolean isUseableByPlayer(EntityPlayer player, WeakReference[] inventories) {
+        for (WeakReference<IInventory> ref : inventories)
+        {
+            if (ref != null)
+            {
+                IInventory inv = ref.get();
+                if (inv != null && !inv.isUseableByPlayer(player))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
     @Override
     public boolean canInsertItem (int i, ItemStack itemstack, int j)
     {
@@ -142,6 +164,11 @@ public class CraftingStationLogic extends InventoryLogic implements ISidedInvent
 
     }
 
+    public WeakReference[] getInventories()
+    {
+        return new WeakReference[] { this.chest, this.doubleChest, this.patternChest, this.furnace };
+    }
+    
     @Override
     public boolean canUpdate ()
     {

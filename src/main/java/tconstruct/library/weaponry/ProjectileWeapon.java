@@ -8,6 +8,10 @@ import tconstruct.weaponry.TinkerWeaponry;
 import tconstruct.weaponry.ammo.ArrowAmmo;
 import tconstruct.weaponry.ammo.BoltAmmo;
 import tconstruct.weaponry.client.CrosshairType;
+import mods.battlegear2.api.IUsableItem;
+import mods.battlegear2.api.PlayerEventChild;
+import mods.battlegear2.api.weapons.IBattlegearWeapon;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -20,6 +24,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import tconstruct.library.tools.AbilityHelper;
 import tconstruct.library.tools.ToolCore;
 import tconstruct.library.util.TextureHelper;
@@ -33,7 +38,12 @@ import java.util.Map;
  * Weapons that utilize ammo that uses the ammo system to shoot projectiles.
  * Bows,...
  */
-public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IWindup {
+@Optional.InterfaceList({
+    @Optional.Interface(modid = "battlegear2", iface = "mods.battlegear2.api.weapons.IBattlegearWeapon"),
+    @Optional.Interface(modid = "ZeldaItemAPI", iface = "zeldaswordskills.api.item.ISword"),
+    @Optional.Interface(modid = "DynamicSkillsAPI", iface = "dynamicswordskills.api.ISword")
+})
+public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IWindup, IBattlegearWeapon, IUsableItem, zeldaswordskills.api.item.ISword, dynamicswordskills.api.ISword {
     public ProjectileWeapon(int baseDamage, String name) {
         super(baseDamage);
 
@@ -124,8 +134,12 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
 
     public float getProjectileSpeed(ItemStack itemStack)
     {
-        NBTTagCompound toolTag = itemStack.getTagCompound().getCompoundTag("InfiTool");
-        return toolTag.getFloat("FlightSpeed");
+        if (itemStack != null && itemStack.hasTagCompound())
+        {
+            NBTTagCompound toolTag = itemStack.getTagCompound().getCompoundTag("InfiTool");
+            return toolTag.getFloat("FlightSpeed");
+        }
+        return 0;
     }
 
     /* Bow usage */
@@ -158,6 +172,9 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     @Override
     public void onPlayerStoppedUsing (ItemStack weapon, World world, EntityPlayer player, int useRemaining)
     {
+        if (!weapon.hasTagCompound())
+            return;
+
         int time = this.getMaxItemUseDuration(weapon) - useRemaining;
 
         // we abuse the arrowLooseEvent for all projectiles
@@ -474,4 +491,62 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
         list.add(currentAmmo.getDisplayName());
         list.add(StatCollector.translateToLocal("attribute.name.ammo.maxAttackDamage") + ": " + TProxyClient.df.format(damage));
     }
+	
+    /*---- Battlegear Support START ----*/
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean sheatheOnBack(ItemStack item)
+    {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean isOffhandHandDual(ItemStack off) {
+        return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandAttackEntity(PlayerEventChild.OffhandAttackEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+        return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandClickAir(PlayerInteractEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandClickBlock(PlayerInteractEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public void performPassiveEffects(Side effectiveSide, ItemStack mainhandItem, ItemStack offhandItem) {
+        // unused
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean allowOffhand(ItemStack mainhand, ItemStack offhand) {
+        if(offhand == null || offhand.getItem() instanceof AmmoItem)
+            return true;
+		 return false;
+    }
+	
+    /*---- Battlegear Support UseItem ----*/
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean isUsedOverAttack(ItemStack item) {
+        return true;
+    }
+	
+
+    /*---- Battlegear Support END ----*/	
 }

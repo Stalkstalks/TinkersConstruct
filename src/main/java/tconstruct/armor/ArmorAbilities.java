@@ -45,7 +45,7 @@ public class ArmorAbilities
 
         //Feet changes
         ItemStack feet = player.getCurrentArmor(0);
-        if (feet != null)
+        if (feet != null && feet.hasTagCompound())
         {
             if (feet.getItem() instanceof IModifyable && !player.isSneaking())
             {

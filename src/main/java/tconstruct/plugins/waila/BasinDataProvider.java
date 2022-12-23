@@ -37,6 +37,7 @@ public class BasinDataProvider implements IWailaDataProvider
                 FluidStack fs = te.getFluid();
                 currenttip.add(StatCollector.translateToLocal("tconstruct.waila.liquidtag") + WailaRegistrar.fluidNameHelper(fs));
                 currenttip.add(StatCollector.translateToLocal("tconstruct.waila.amounttag") + fs.amount + "/" + te.getCapacity());
+                currenttip.add(StatCollector.translateToLocal("tconstruct.waila.progress") + te.getProgress() + "%");
             }
             else
             {

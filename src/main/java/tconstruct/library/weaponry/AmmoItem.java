@@ -1,5 +1,7 @@
 package tconstruct.library.weaponry;
 
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.util.StatCollector;
@@ -11,10 +13,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import tconstruct.library.tools.ToolCore;
+import tconstruct.tools.TinkerTools;
+import mods.battlegear2.api.PlayerEventChild;
+import mods.battlegear2.api.weapons.IBattlegearWeapon;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import mods.battlegear2.api.core.InventoryPlayerBattle;
 
 import java.util.List;
 
-public abstract class AmmoItem extends ToolCore implements IAmmo {
+@Optional.InterfaceList({
+    @Optional.Interface(modid = "battlegear2", iface = "mods.battlegear2.api.weapons.IBattlegearWeapon")
+})
+public abstract class AmmoItem extends ToolCore implements IBattlegearWeapon, IAmmo {
     public AmmoItem(int baseDamage, String name) {
         super(baseDamage);
         this.setCreativeTab(TConstructRegistry.weaponryTab);
@@ -100,6 +110,26 @@ public abstract class AmmoItem extends ToolCore implements IAmmo {
                     return true;
             }
         }
+		 
+        if (Loader.isModLoaded("battlegear2"))
+        {
+            // search the players inventory
+            int length = ((InventoryPlayerBattle)player.inventory).extraItems.length;
+            for(int i = 0; i < length; i++)
+            {
+                ItemStack bInvStack = ((InventoryPlayerBattle)player.inventory).extraItems[i];
+                if (bInvStack == null)
+                    continue;
+                if (testIfAmmoMatches(stack, bInvStack)) {
+                    IAmmo pickedup = ((IAmmo) stack.getItem());
+                    IAmmo ininventory = ((IAmmo) bInvStack.getItem());
+                    // we can be sure that it's ammo, since stack is ammo and they're equal
+                    int count = pickedup.getAmmoCount(stack);
+                    if(count != ininventory.addAmmo(count, bInvStack))
+                        return true;
+                }
+            }
+        }		 
 
         // couldn't find a matching thing.
         return false;
@@ -153,5 +183,56 @@ public abstract class AmmoItem extends ToolCore implements IAmmo {
     {
         // ammo doesn't hurt on smacking stuff with it
         return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean sheatheOnBack(ItemStack item)
+    {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean isOffhandHandDual(ItemStack off) {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandAttackEntity(PlayerEventChild.OffhandAttackEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+        event.cancelParent = false;
+        event.swingOffhand = false;
+        event.shouldAttack = false;
+        return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandClickAir(PlayerInteractEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+        event.setCanceled(false);
+        return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean offhandClickBlock(PlayerInteractEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+		event.setCanceled(false);
+        return false;
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public void performPassiveEffects(Side effectiveSide, ItemStack mainhandItem, ItemStack offhandItem) {
+        // unused
+    }
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean allowOffhand(ItemStack mainhand, ItemStack offhand) {
+        if(offhand == null)
+            return true;
+        return (mainhand != null && mainhand.getItem() != TinkerTools.cleaver && mainhand.getItem() != TinkerTools.battleaxe)
+                && (offhand.getItem() != TinkerTools.cleaver && offhand.getItem() != TinkerTools.battleaxe);
     }
 }

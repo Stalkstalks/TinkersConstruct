@@ -35,18 +35,20 @@ public class TActiveOmniMod extends ActiveToolMod
             NBTTagCompound tags = stack.getTagCompound().getCompoundTag("InfiTool");
             if (tags.hasKey("Moss"))
             {
-                int chance = tags.getInteger("Moss");
-                int check = world.canBlockSeeTheSky((int) entity.posX, (int) entity.posY, (int) entity.posZ) ? 350 : 1150;
-                // REGROWING AMMO :OOoo
-                if(tool instanceof IAmmo && random.nextInt(check*3) < chance) // ammo regenerates at a much slower rate
+                int ticks = (int) world.getTotalWorldTime();
+                int skyCheck = ((tool instanceof IAmmo)? 300 : 100);
+                int check = skyCheck << 2;
+                //int check = (world.canBlockSeeTheSky((int) entity.posX, (int) entity.posY, (int) entity.posZ) ? 350 : 1150)/check;
+                if(ticks % check == 0 || ((ticks % skyCheck == 0) && (world.canBlockSeeTheSky((int) entity.posX, (int) entity.posY, (int) entity.posZ))))
                 {
-                    IAmmo ammothing = (IAmmo)tool;
-                    if(ammothing.getAmmoCount(stack) > 0) // must have ammo
-                        ammothing.addAmmo(1, stack);
-                }
-                // selfrepairing tool. LAAAAAME
-                else if (random.nextInt(check) < chance)
-                {
+                    // REGROWING AMMO :OOoo
+                    if(tool instanceof IAmmo)
+                    {
+                        IAmmo ammothing = (IAmmo)tool;
+                        if(ammothing.getAmmoCount(stack) > 0) // must have ammo
+                            ammothing.addAmmo(1, stack);
+                    }
+                    // selfrepairing tool. LAAAAAME
                     AbilityHelper.healTool(stack, 1, (EntityLivingBase) entity, true);
                 }
             }

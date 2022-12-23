@@ -58,7 +58,7 @@ public class AbilityHelper
 
     public static boolean onLeftClickEntity (ItemStack stack, EntityLivingBase player, Entity entity, ToolCore tool, int baseDamage)
     {
-        if (entity.canAttackWithItem() && stack.hasTagCompound())
+        if (entity != null && player != null && entity.canAttackWithItem() && stack.hasTagCompound())
         {
             if (!entity.hitByEntity(player)) // can't attack this entity
             {
@@ -214,7 +214,7 @@ public class AbilityHelper
     {
         EntityLivingBase living = user instanceof EntityLivingBase ? (EntityLivingBase)user : null;
 
-        int damage = toolTags.getInteger("Attack") + baseDamage;
+        int damage = toolTags.getInteger("Attack") + baseDamage; 
         int earlyModDamage = 0;
         for (ActiveToolMod mod : TConstructRegistry.activeModifiers)
         {
@@ -223,6 +223,7 @@ public class AbilityHelper
         damage += earlyModDamage;
 
         if(living != null) {
+			   damage += living.getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue();
             if (living.isPotionActive(Potion.damageBoost)) {
                 damage += 3 << living.getActivePotionEffect(Potion.damageBoost).getAmplifier();
             }

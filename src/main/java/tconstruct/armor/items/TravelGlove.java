@@ -9,7 +9,7 @@ import net.minecraft.util.*;
 import tconstruct.armor.ArmorProxyClient;
 import tconstruct.library.accessory.*;
 
-public class TravelGlove extends AccessoryCore implements IAccessoryModel
+public class TravelGlove extends AccessoryCore// implements IAccessoryModel
 {
     public TravelGlove()
     {
@@ -32,7 +32,7 @@ public class TravelGlove extends AccessoryCore implements IAccessoryModel
         this.modifiers[2] = iconRegister.registerIcon("tinker:travelgear/glove_spines");
         this.modifiers[3] = iconRegister.registerIcon("tinker:travelgear/glove_sticky");
     }
-
+/*
     @SideOnly(Side.CLIENT)
     public ModelBiped getArmorModel (EntityLivingBase entityLiving, ItemStack itemStack, int armorSlot)
     {
@@ -47,6 +47,7 @@ public class TravelGlove extends AccessoryCore implements IAccessoryModel
     {
         return texture;
     }
+*/
 
     @Override
     public String[] getTraits() {

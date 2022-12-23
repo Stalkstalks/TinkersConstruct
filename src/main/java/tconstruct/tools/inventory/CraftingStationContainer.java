@@ -1,5 +1,7 @@
 package tconstruct.tools.inventory;
 
+import java.lang.ref.WeakReference;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
@@ -26,6 +28,7 @@ public class CraftingStationContainer extends Container
     private int posX;
     private int posY;
     private int posZ;
+    private WeakReference[] inventories;
 
     public CraftingStationContainer(InventoryPlayer inventorplayer, CraftingStationLogic logic, int x, int y, int z)
     {
@@ -37,6 +40,7 @@ public class CraftingStationContainer extends Container
         this.logic = logic;
         craftMatrix = new InventoryCraftingStation(this, 3, 3, logic);
         craftResult = new InventoryCraftingStationResult(logic);
+        this.inventories = logic.getInventories();
 
         int row;
         int column;
@@ -161,6 +165,8 @@ public class CraftingStationContainer extends Container
 
         Block block = worldObj.getBlock(this.posX, this.posY, this.posZ);
         if (block != TinkerTools.craftingStationWood && block != TinkerTools.craftingSlabWood)
+            return false;
+        if (!this.logic.isUseableByPlayer(player) || !CraftingStationLogic.isUseableByPlayer(player, this.inventories))
             return false;
         return player.getDistanceSq((double) this.posX + 0.5D, (double) this.posY + 0.5D, (double) this.posZ + 0.5D) <= 64.0D;
     }

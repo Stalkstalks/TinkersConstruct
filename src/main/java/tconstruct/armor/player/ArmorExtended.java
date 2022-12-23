@@ -1,26 +1,31 @@
 package tconstruct.armor.player;
 
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.UUID;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.*;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.*;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import tconstruct.library.accessory.IHealthAccessory;
+import tconstruct.armor.TinkerArmor;
 
 public class ArmorExtended implements IInventory
 {
     public ItemStack[] inventory = new ItemStack[7];
     public WeakReference<EntityPlayer> parent;
     public UUID globalID = UUID.fromString("B243BE32-DC1B-4C53-8D13-8752D5C69D5B");
+    private static int soulBoundID = -6;
 
     public void init (EntityPlayer player)
     {
@@ -177,6 +182,20 @@ public class ArmorExtended implements IInventory
                 }
             }
         }
+		
+		ItemStack glove = inventory[1];
+		if ((glove != null && glove.hasTagCompound()))
+		{
+			NBTTagCompound tags = glove.getTagCompound().getCompoundTag(TinkerArmor.travelGlove.getBaseTagName());
+			stats.bonusDigSpeed = tags.getInteger("MiningSpeed") / 100;
+			stats.bonusDamage = tags.getInteger("Attack") / 2;
+		}
+		else
+		{
+			stats.bonusDigSpeed = 0;
+			stats.bonusDamage = 0;
+		}
+		
     }
 
     @Override
@@ -196,6 +215,32 @@ public class ArmorExtended implements IInventory
     @Override
     public boolean isItemValidForSlot (int slot, ItemStack itemstack)
     {
+        return false;
+    }
+	 
+    public static int getSoulBoundID()
+    {
+        if(soulBoundID == -6)
+        {
+            for (Enchantment ench : Enchantment.enchantmentsList) {
+                if (ench != null && ench.getName().contains("soulbound")) {
+                    soulBoundID = ench.effectId;
+                    break;
+                }
+            }
+        }
+        return soulBoundID;
+    }
+    
+    public static boolean isSoulBounded(ItemStack stack) {
+        int soulBound = getSoulBoundID();
+        NBTTagList stackEnch = stack.getEnchantmentTagList();
+        if (soulBound >= 0 && stackEnch != null) {
+            for (int i = 0; i < stackEnch.tagCount(); i++) {
+                int id = stackEnch.getCompoundTagAt(i).getInteger("id");
+                if (id == soulBound) return true;
+            }
+        }
         return false;
     }
 
@@ -241,13 +286,15 @@ public class ArmorExtended implements IInventory
     public void dropItems ()
     {
         EntityPlayer player = parent.get();
-
-        for (int i = 0; i < 4; ++i)
+        if (player != null)
         {
-            if (this.inventory[i] != null)
+            for (int i = 0; i < 4; ++i)
             {
-                player.func_146097_a(this.inventory[i], true, false);
-                this.inventory[i] = null;
+                if (this.inventory[i] != null && !isSoulBounded(this.inventory[i]))
+                {
+                    player.func_146097_a(this.inventory[i], true, false);
+                    this.inventory[i] = null;
+                }
             }
         }
     }

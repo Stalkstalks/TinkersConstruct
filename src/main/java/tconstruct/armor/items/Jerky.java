@@ -16,7 +16,7 @@ public class Jerky extends SpecialFood
     public static String[] itemNames = new String[] { "jerky.beef", "jerky.chicken", "jerky.pig", "jerky.sheep", "jerky.fish", "jerky.zombie", "jerky.blueslime", "jerky.blood" };
     public static int[] hunger = new int[] { 8, 6, 8, 6, 5, 4, 6, 4 };
     public static float[] saturation = new float[] { 1.0f, 0.8f, 1.0f, 0.8f, 0.8f, 0.4f, 1.0f, 0.4f };
-    public static int[] overhaulHunger = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+    public static int[] overhaulHunger = new int[] { 8, 6, 8, 6, 5, 2, 2, 2 };
 
     public Jerky(boolean hungerOverhaul)
     {

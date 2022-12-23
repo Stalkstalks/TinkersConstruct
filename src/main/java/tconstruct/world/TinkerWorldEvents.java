@@ -2,19 +2,24 @@ package tconstruct.world;
 
 import cpw.mods.fml.common.eventhandler.*;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.*;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.potion.*;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
+
 import tconstruct.TConstruct;
 import tconstruct.tools.TinkerTools;
 import tconstruct.util.ItemHelper;
 import tconstruct.util.config.PHConstruct;
+
 
 public class TinkerWorldEvents
 {
@@ -125,5 +130,103 @@ public class TinkerWorldEvents
                 ItemHelper.addDrops(event, new ItemStack(Items.ghast_tear, 1));
             }
         }
+    }
+    
+	/*
+    @SubscribeEvent
+    public void thiefAttempt(EntityInteractEvent ev)
+    {
+        if (((ev.target instanceof EntityLiving)) && (!(ev.target instanceof EntityPlayer)))
+        {
+            if ((((EntityLiving)ev.target).getAttackTarget() != null) && (((EntityLiving)ev.target).getAttackTarget().equals(ev.entityPlayer)))
+                return;
+        }
+        int randomIndex = (int)Math.round(Math.random() * 80.0D);
+        if (randomIndex > 5)
+             return;
+        double dp = getDP((EntityLiving)ev.target,ev.entityPlayer);
+        if(dp > -0.35)
+            return;
+
+        if(randomIndex == 5)
+            randomIndex = 0;
+        ItemStack itemStack = ((EntityLiving)ev.target).getEquipmentInSlot(randomIndex);
+        if (itemStack != null)
+        {
+            int oldStackSize = itemStack.stackSize;
+            int oldStackDamage = itemStack.getItemDamage();
+            itemStack.stackSize = 1;
+            ev.entityPlayer.inventory.addItemStackToInventory(itemStack);
+            itemStack.stackSize = (oldStackSize - 1);
+            itemStack.setItemDamage(oldStackDamage);
+            if (itemStack.stackSize <= 0)
+                itemStack = null;
+        
+            ev.target.setCurrentItemOrArmor(randomIndex, itemStack);
+        }
+    }*/
+    
+    @SubscribeEvent
+    public void checkForStealthGain(LivingEvent.LivingUpdateEvent ev)
+    {
+        if(ev.entity == null || !(ev.entity instanceof EntityCreature))
+            return;
+        
+        EntityCreature entity = (EntityCreature) ev.entity;
+        Entity attackTarget = entity.getAttackTarget();
+      
+        if(attackTarget != null && makeStealthCheck(entity, attackTarget))
+        {
+            entity.setAttackTarget(null); 
+            if(entity.getEntityToAttack() == attackTarget)
+                entity.setTarget(null);
+            if(entity.getAITarget() == attackTarget)
+                entity.setRevengeTarget(null);
+        }
+    }
+    
+    @SubscribeEvent
+    public void onLivingSetAttackTarget(LivingSetAttackTargetEvent ev)
+    {
+        if(ev.entity == null || !(ev.entity instanceof EntityCreature))
+            return;
+        
+        EntityCreature entity = (EntityCreature) ev.entity;        
+        if(ev.target != null && makeStealthCheck(entity, ev.target))
+        {
+            entity.setAttackTarget(null);
+        }
+    }
+        
+    protected boolean makeStealthCheck(EntityCreature actor, Entity target)
+    {   
+        if(target != null && target instanceof EntityPlayer)
+        {
+            IAttributeInstance iattributeinstance = actor.getEntityAttribute(SharedMonsterAttributes.followRange);
+            double distance = (iattributeinstance == null) ? 16.0D : iattributeinstance.getAttributeValue();
+            distance *= distance;
+            
+            double dp = getDP(actor,(EntityPlayer)target);
+            if(dp < 0.5)
+            {
+                double actualDistance = 0;
+                double distancePart = target.posX-actor.posX;
+                actualDistance += distancePart * distancePart;
+                distancePart = target.posY-actor.posY ;
+                actualDistance += distancePart * distancePart;
+                distancePart = target.posZ-actor.posZ;
+                actualDistance += distancePart * distancePart;
+                if(actualDistance > distance + (distance*dp))
+                    return true;
+            }
+        }
+        return false;
+    }
+                
+    protected double getDP(EntityLivingBase self, EntityLivingBase target)
+    {
+        Vec3 targetVec = Vec3.createVectorHelper(target.posX-self.posX , target.posY-self.posY , target.posZ-self.posZ).normalize();
+        Vec3 lookVec = self.getLookVec();
+        return (targetVec.xCoord * lookVec.xCoord) + (targetVec.yCoord * lookVec.yCoord) + (targetVec.zCoord * lookVec.zCoord);
     }
 }

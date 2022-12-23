@@ -56,9 +56,9 @@ import java.util.Random;
 public class ArmorProxyClient extends ArmorProxyCommon {
 	public static WingModel wings = new WingModel();
 	public static BootBump bootbump = new BootBump();
-	public static HiddenPlayerModel glove = new HiddenPlayerModel(0.25F, 4);
+	//public static HiddenPlayerModel glove = new HiddenPlayerModel(0.25F, 4);
 	public static HiddenPlayerModel vest = new HiddenPlayerModel(0.25f, 1);
-	public static BeltModel belt = new BeltModel();
+	//public static BeltModel belt = new BeltModel();
 	
 	public static TPlayerStats playerStats = new TPlayerStats();
 	
@@ -259,8 +259,11 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 				if (healthMax > 20)
 					healthMax = 20;
 				float absorb = this.mc.thePlayer.getAbsorptionAmount();
+				float absorbMax = absorb;
+				if (absorbMax > 20)
+					absorbMax = 20;
 
-				int healthRows = MathHelper.ceiling_float_int((healthMax + absorb) / 2.0F / 10.0F);
+				int healthRows = MathHelper.ceiling_float_int((healthMax + absorbMax) / 2.0F / 10.0F);
 				int rowHeight = Math.max(10 - (healthRows - 2), 3);
 
 				this.rand.setSeed((long) (updateCounter * 312871));
@@ -285,9 +288,9 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 					MARGIN += 36;
 				else if (mc.thePlayer.isPotionActive(Potion.wither))
 					MARGIN += 72;
-				float absorbRemaining = absorb;
+				float absorbRemaining = absorbMax;
 
-				for (int i = MathHelper.ceiling_float_int((healthMax + absorb) / 2.0F) - 1;
+				for (int i = MathHelper.ceiling_float_int((healthMax + absorbMax) / 2.0F) - 1;
 					 i >= 0; --i) {
 					int b0 = (highlight ? 1 : 0);
 					int row = MathHelper.ceiling_float_int((float) (i + 1) / 10.0F) - 1;
@@ -309,10 +312,10 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 					}
 
 					if (absorbRemaining > 0.0F) {
-						if (absorbRemaining == absorb && absorb % 2.0F == 1.0F)
-							drawTexturedModalRect(x, y, MARGIN + 153, TOP, 9, 9); // 17
+						if (absorbRemaining == absorbMax && absorbMax % 2.0F == 1.0F)
+							drawTexturedModalRect(x, y, MARGIN + 45, TOP, 9, 9); // 17 //153
 						else
-							drawTexturedModalRect(x, y, MARGIN + 144, TOP, 9, 9); // 16
+							drawTexturedModalRect(x, y, MARGIN + 36, TOP, 9, 9); // 16 //144
 						absorbRemaining -= 2.0F;
 					}
 					else {
@@ -350,6 +353,24 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 					}
 					if (hp % 2 == 1 && renderHearts < 10) {
 						this.drawTexturedModalRect(xBasePos + 8 * renderHearts, yBasePos,
+								9 + 18 * iter, potionOffset, 9, 9);
+					}
+				}
+				
+				hp = (int) absorb;
+				for (int iter = 0; iter < hp / 20; iter++) {
+					int renderHearts = (hp - 20 * (iter + 1)) / 2;
+					if (renderHearts > 10)
+						renderHearts = 10;
+					for (int i = 0; i < renderHearts; i++) {
+						int y = -10;
+						if (i == regen)
+							y -= 2;
+						this.drawTexturedModalRect(xBasePos + 8 * i, yBasePos + y, 0 + 18 * iter,
+								potionOffset, 9, 9);
+					}
+					if (hp % 2 == 1 && renderHearts < 10) {
+						this.drawTexturedModalRect(xBasePos + 8 * renderHearts, yBasePos - 10,
 								9 + 18 * iter, potionOffset, 9, 9);
 					}
 				}
@@ -402,7 +423,7 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 				ArmorProxyClient.wings.isRiding = event.renderer.modelBipedMain.isRiding;
 				ArmorProxyClient.wings.isChild = event.renderer.modelBipedMain.isChild;
 				ArmorProxyClient.wings.isSneak = event.renderer.modelBipedMain.isSneak;
-
+/*
 				ArmorProxyClient.glove.onGround = event.renderer.modelBipedMain.onGround;
 				ArmorProxyClient.glove.isRiding = event.renderer.modelBipedMain.isRiding;
 				ArmorProxyClient.glove.isChild = event.renderer.modelBipedMain.isChild;
@@ -414,7 +435,7 @@ public class ArmorProxyClient extends ArmorProxyCommon {
 				ArmorProxyClient.belt.isRiding = event.renderer.modelBipedMain.isRiding;
 				ArmorProxyClient.belt.isChild = event.renderer.modelBipedMain.isChild;
 				ArmorProxyClient.belt.isSneak = event.renderer.modelBipedMain.isSneak;
-
+*/
 				renderArmorExtras(event);
 
 				break;

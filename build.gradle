@@ -48,6 +48,9 @@ repositories {
 apply plugin: 'forge'
 group = 'tconstruct'
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 // Define properties file
 ext.configFile = file "build.properties"
 
@@ -74,14 +77,14 @@ dependencies {
 
 // Finds and sets version data
 task buildInfo {
-    def cmd = "git rev-parse --short HEAD"
-    def proc = cmd.execute()
-    proc.waitFor()
-    if (proc.exitValue() == 0) {
-        ext.revision = proc.text.trim()
-    } else {
+//    def cmd = "git rev-parse --short HEAD"
+//    def proc = cmd.execute()
+//    proc.waitFor()
+//    if (proc.exitValue() == 0) {
+//        ext.revision = proc.text.trim()
+//    } else {
         ext.revision = "GITBORK"
-    }
+ //   }
 
     if (System.getenv().BUILD_NUMBER != null) {
         ext.buildNum = "build${System.getenv().BUILD_NUMBER}"

@@ -40,7 +40,8 @@ public class TableDataProvider implements IWailaDataProvider
             {
                 currenttip.add(StatCollector.translateToLocal("tconstruct.waila.liquidtag") + WailaRegistrar.fluidNameHelper(te.getFluid()));
                 currenttip.add(StatCollector.translateToLocal("tconstruct.waila.amounttag") + te.getFluidAmount() + "/" + te.getCapacity());
-            }
+                currenttip.add(StatCollector.translateToLocal("tconstruct.waila.progress") + te.getProgress() + "%");
+				}
         }
         return currenttip;
     }

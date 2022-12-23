@@ -1,19 +1,28 @@
 package tconstruct.library.weaponry;
 
 import tconstruct.weaponry.client.CrosshairType;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mods.battlegear2.api.PlayerEventChild;
+import mods.battlegear2.api.IUsableItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Throwing weapons that utilize the ammo system on themselves.
  * Throwing knifes etc.
  */
-public abstract class AmmoWeapon extends AmmoItem implements IAccuracy, IWindup {
+@Optional.InterfaceList({
+    @Optional.Interface(modid = "battlegear2", iface = "mods.battlegear2.api.IUsableItem"),
+    @Optional.Interface(modid = "ZeldaItemAPI", iface = "zeldaswordskills.api.item.ISword"),
+    @Optional.Interface(modid = "DynamicSkillsAPI", iface = "dynamicswordskills.api.ISword")
+})
+public abstract class AmmoWeapon extends AmmoItem implements IAccuracy, IWindup, IUsableItem, zeldaswordskills.api.item.ISword, dynamicswordskills.api.ISword {
     public AmmoWeapon(int baseDamage, String name) {
         super(baseDamage, name);
     }
@@ -134,4 +143,14 @@ public abstract class AmmoWeapon extends AmmoItem implements IAccuracy, IWindup 
     public float getZoom(ItemStack itemStack) {
         return 1.0f;
     }
+	
+    /*---- Battlegear Support START ----*/
+
+    @Override
+    @Optional.Method(modid = "battlegear2")
+    public boolean isUsedOverAttack(ItemStack item) {
+        return true;
+    }
+
+    /*---- Battlegear Support END ----*/	
 }

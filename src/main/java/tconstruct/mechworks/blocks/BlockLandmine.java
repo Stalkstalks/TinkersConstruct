@@ -442,16 +442,18 @@ public class BlockLandmine extends BlockContainer
 
     protected int getMineState (World par1World, int par2, int par3, int par4)
     {
-        TileEntityLandmine te = (TileEntityLandmine) par1World.getTileEntity(par2, par3, par4);
-
-        Sensitivity triggerType;
-
+        TileEntity tileEntity = par1World.getTileEntity(par2, par3, par4);
+        
         // Change to return 1 if you want the landmine to blow up when the block
         // holding it is broken
-        if (te == null)
+        if (tileEntity == null || !(tileEntity instanceof TileEntityLandmine))
         {
             return 0;
         }
+        
+        TileEntityLandmine te = (TileEntityLandmine) par1World.getTileEntity(par2, par3, par4);
+        Sensitivity triggerType;
+        
         switch (te.triggerType)
         {
         case 0:

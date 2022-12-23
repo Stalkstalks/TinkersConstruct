@@ -1,5 +1,6 @@
 package tconstruct.weaponry.weapons;
 
+import cpw.mods.fml.common.Loader;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Items;
@@ -23,6 +24,7 @@ import net.minecraft.world.World;
 import tconstruct.library.crafting.ToolBuilder;
 import tconstruct.library.tools.AbilityHelper;
 import tconstruct.tools.TinkerTools;
+import mods.battlegear2.api.core.InventoryPlayerBattle;
 
 import java.util.List;
 
@@ -167,7 +169,14 @@ public class Crossbow extends ProjectileWeapon {
         if(ammo.getItem() instanceof IAmmo)
             ((IAmmo) ammo.getItem()).consumeAmmo(1, ammo);
         else
-            player.inventory.consumeInventoryItem(ammo.getItem());
+        {
+            if(Loader.isModLoaded("battlegear2")) {
+                ((InventoryPlayerBattle)player.inventory).consumeInventoryItem(ammo.getItem());
+            }
+            else { 
+                player.inventory.consumeInventoryItem(ammo.getItem());
+            }
+        }
 
         playReloadSound(world, player, weapon, ammo);
 
@@ -247,6 +256,16 @@ public class Crossbow extends ProjectileWeapon {
 
     @Override
     public ItemStack searchForAmmo(EntityPlayer player, ItemStack weapon) {
+		 
+        if (Loader.isModLoaded("battlegear2"))
+        {
+            ItemStack offhand = ((InventoryPlayerBattle) player.inventory).getCurrentOffhandWeapon();
+            if(offhand != null && (offhand.getItem() instanceof BoltAmmo) && ((IAmmo) offhand.getItem()).getAmmoCount(offhand) > 0)
+            {
+                return offhand;
+            }
+        }
+        
         // arrow priority: hotbar > inventory, tinker arrows > regular arrows
         ItemStack[] inventory = player.inventory.mainInventory;
 

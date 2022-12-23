@@ -111,7 +111,7 @@ public class TinkerArmor
         GameRegistry.registerItem(TinkerArmor.knapsack, "knapsack");
 
         LiquidCasting basinCasting = TConstruct.getBasinCasting();
-        TinkerArmor.materialWood = EnumHelper.addArmorMaterial("WOOD", 2, new int[] { 1, 2, 2, 1 }, 3);
+        TinkerArmor.materialWood = EnumHelper.addArmorMaterial("WOOD", 2, new int[] { 1, 3, 2, 1 }, 3);
         TinkerArmor.helmetWood = new ArmorBasic(TinkerArmor.materialWood, 0, "wood").setUnlocalizedName("tconstruct.helmetWood");
         TinkerArmor.chestplateWood = new ArmorBasic(TinkerArmor.materialWood, 1, "wood").setUnlocalizedName("tconstruct.chestplateWood");
         TinkerArmor.leggingsWood = new ArmorBasic(TinkerArmor.materialWood, 2, "wood").setUnlocalizedName("tconstruct.leggingsWood");
@@ -251,6 +251,6 @@ public class TinkerArmor
         ModifyBuilder.registerModifier(new GloveSpeed(1, new ItemStack[] { redstoneItem, redstoneBlock }, new int[] { 1, 9 }));
         //ModifyBuilder.registerModifier(new GloveClimb(new ItemStack[] { new ItemStack(Items.slime_ball), new ItemStack(Blocks.web), new ItemStack(TinkerTools.materials, 1, 25) }));
         modAttackGlove = new ModAttack("Quartz", 2, new ItemStack[] { new ItemStack(Items.quartz), new ItemStack(Blocks.quartz_block, 1, Short.MAX_VALUE) }, new int[] { 1, 4 }, 50, 50, "Accessory");
-        //ModifyBuilder.registerModifier(modAttackGlove);
+        ModifyBuilder.registerModifier(modAttackGlove);
     }
 }

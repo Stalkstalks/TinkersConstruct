@@ -193,7 +193,7 @@ public class ToolStationLogic extends InventoryLogic implements ISidedInventory
     @Override
     public String getInventoryName ()
     {
-        return null;
+        return "null";
     }
 
     @Override

@@ -17,6 +17,8 @@ public class TPlayerStats implements IExtendedEntityProperties, IPlayerExtendedI
 
     public int level;
     public int bonusHealth;
+	public float bonusDamage;
+	public float bonusDigSpeed;
     public int damage;
     public int hunger;
     public int previousDimension;
@@ -73,15 +75,17 @@ public class TPlayerStats implements IExtendedEntityProperties, IPlayerExtendedI
     public void loadNBTData (NBTTagCompound compound)
     {
         NBTTagCompound properties = (NBTTagCompound) compound.getTag(PROP_NAME);
-
-        this.armor.readFromNBT(properties);
-        this.knapsack.readFromNBT(properties);
-        this.beginnerManual = properties.getBoolean("beginnerManual");
-        this.materialManual = properties.getBoolean("materialManual");
-        this.smelteryManual = properties.getBoolean("smelteryManual");
-        this.weaponryManual = properties.getBoolean("weaponryManual");
-        this.battlesignBonus = properties.getBoolean("battlesignBonus");
-        this.derpLevel = properties.getInteger("derpLevel");
+        if (properties != null)
+        {
+            this.armor.readFromNBT(properties);
+            this.knapsack.readFromNBT(properties);
+            this.beginnerManual = properties.getBoolean("beginnerManual");
+            this.materialManual = properties.getBoolean("materialManual");
+            this.smelteryManual = properties.getBoolean("smelteryManual");
+            this.weaponryManual = properties.getBoolean("weaponryManual");
+            this.battlesignBonus = properties.getBoolean("battlesignBonus");
+            this.derpLevel = properties.getInteger("derpLevel");
+        }
     }
 
     @Override

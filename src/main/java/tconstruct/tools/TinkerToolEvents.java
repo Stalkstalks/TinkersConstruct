@@ -35,6 +35,9 @@ public class TinkerToolEvents
     @SubscribeEvent
     public void onCrafting (ItemCraftedEvent event)
     {
+        if (event.crafting == null || event.player == null || event.player.worldObj == null || event.craftMatrix == null)
+            return;
+        
         Item item = event.crafting.getItem();
         if (!event.player.worldObj.isRemote)
         {
@@ -242,6 +245,8 @@ public class TinkerToolEvents
                     if (source.isProjectile())
                     {
                         Entity projectile = source.getSourceOfDamage();
+                        if(projectile == null)
+                            return;
                         Vec3 motion = Vec3.createVectorHelper(projectile.motionX, projectile.motionY, projectile.motionZ);
                         Vec3 look = player.getLookVec();
 
@@ -316,7 +321,7 @@ public class TinkerToolEvents
 
         if (event.recentlyHit)
         {
-            if (event.entityLiving.getClass() == EntitySkeleton.class)
+            if (event.entityLiving instanceof EntitySkeleton)
             {
                 EntitySkeleton enemy = (EntitySkeleton) event.entityLiving;
 

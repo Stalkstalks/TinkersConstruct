@@ -14,7 +14,7 @@ import tconstruct.armor.ArmorProxyClient;
 import tconstruct.client.ArmorControls;
 import tconstruct.library.accessory.*;
 
-public class TravelBelt extends AccessoryCore implements IAccessoryModel
+public class TravelBelt extends AccessoryCore// implements IAccessoryModel
 {
     public TravelBelt()
     {
@@ -33,6 +33,7 @@ public class TravelBelt extends AccessoryCore implements IAccessoryModel
     {
     }
 
+/*
     @Override
     @SideOnly(Side.CLIENT)
     public ModelBiped getArmorModel (EntityLivingBase entityLiving, ItemStack itemStack, int armorSlot)
@@ -48,6 +49,7 @@ public class TravelBelt extends AccessoryCore implements IAccessoryModel
     {
         return texture;
     }
+*/
 
     @Override
     @SideOnly(Side.CLIENT)

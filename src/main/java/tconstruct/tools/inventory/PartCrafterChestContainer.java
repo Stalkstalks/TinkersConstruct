@@ -74,9 +74,10 @@ public class PartCrafterChestContainer extends ActiveContainer
             ItemStack slotStack = slot.getStack();
             stack = slotStack.copy();
 
-            if (slotID < logic.getSizeInventory())
+            int inventorySize = this.inventory.length + this.patternLogic.getSizeInventory();
+            if (slotID < inventorySize)
             {
-                if (!this.mergeItemStack(slotStack, logic.getSizeInventory() + patternLogic.getSizeInventory(), this.inventorySlots.size(), true))
+                if (!this.mergeItemStack(slotStack, inventorySize, this.inventorySlots.size(), true))
                 {
                     return null;
                 }
@@ -94,7 +95,7 @@ public class PartCrafterChestContainer extends ActiveContainer
 
             if (slotStack.stackSize == 0)
             {
-                slot.putStack((ItemStack) null);
+                slot.putStack(null);
                 logic.tryBuildPart(slotID);
             }
             slot.onSlotChanged();

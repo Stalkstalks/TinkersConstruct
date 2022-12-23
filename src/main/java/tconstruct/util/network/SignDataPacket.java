@@ -73,6 +73,11 @@ public class SignDataPacket extends AbstractPacket
     @Override
     public void handleServerSide (EntityPlayer player)
     {
+        if (player.worldObj.blockExists(x, y, z))
+        {
+            return;
+        }
+        
         TileEntity te = player.worldObj.getTileEntity(x, y, z);
 
         if (te != null && te instanceof BattlesignLogic)

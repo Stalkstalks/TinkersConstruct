@@ -20,6 +20,7 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
 import tconstruct.TConstruct;
@@ -328,8 +329,8 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
 
         AxisAlignedBB box = AxisAlignedBB.getBoundingBox(minPos.x, minPos.y, minPos.z, maxPos.x + 1, minPos.y + layers, maxPos.z + 1);
 
-        List list = worldObj.getEntitiesWithinAABB(Entity.class, box);
-        for (Object o : list)
+        List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, box);
+        for (Entity o : list)
         {
             if (moltenMetal.size() >= 1)
             {
@@ -753,9 +754,9 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
         int xd1 = 1, xd2 = 1; // x-difference
         for (int i = 1; i < MAX_SMELTERY_SIZE; i++) // don't check farther than needed
         {
-            if (worldObj.getBlock(x - xd1, y, z) == null || worldObj.isAirBlock(x - xd1, y, z))
+            if (this.worldObj.isAirBlock(x - xd1, y, z))
                 xd1++;
-            else if (worldObj.getBlock(x + xd2, y, z) == null || worldObj.isAirBlock(x + xd2, y, z))
+            else if (this.worldObj.isAirBlock(x + xd2, y, z))
                 xd2++;
 
             // if one side hit a wall and the other didn't we might have to center our x-position again
@@ -778,9 +779,9 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
         int zd1 = 1, zd2 = 1;
         for (int i = 1; i < MAX_SMELTERY_SIZE; i++) // don't check farther than needed
         {
-            if (worldObj.getBlock(x, y, z - zd1) == null || worldObj.isAirBlock(x, y, z - zd1))
+            if (this.worldObj.isAirBlock(x, y, z - zd1))
                 zd1++;
-            else if (worldObj.getBlock(x, y, z + zd2) == null || worldObj.isAirBlock(x, y, z + zd2))
+            else if (this.worldObj.isAirBlock(x, y, z + zd2))
                 zd2++;
 
             // if one side hit a wall and the other didn't we might have to center our x-position again
@@ -886,7 +887,7 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
             for (int zPos = zMin + 1; zPos <= zMax - 1; zPos++)
             {
                 block = worldObj.getBlock(xPos, y, zPos);
-                if (block != null && !worldObj.isAirBlock(xPos, y, zPos))
+                if (!this.worldObj.isAirBlock(xPos, y, zPos))
                     return false;
             }
         }
@@ -940,7 +941,7 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
         {
             // regular check failed, maybe it's the bottom?
             Block block = worldObj.getBlock(x, y, z);
-            if (block != null && !worldObj.isAirBlock(x, y, z))
+            if (!this.worldObj.isAirBlock(x, y, z))
                 if (validBlockID(block))
                     return validateBottom(x, y, z, sides, count);
 
@@ -960,21 +961,28 @@ public class SmelteryLogic extends InventoryLogic implements IActiveLogic, IFaci
         int zMax = z + sides[3] - 1;
 
         // Check inside
-        for (int xPos = xMin; xPos <= xMax; xPos++)
-        {
-            for (int zPos = zMin; zPos <= zMax; zPos++)
+        if (y >= 0 && y < 256) {
+            for (int xPos = xMin; xPos <= xMax; xPos++)
             {
-                if (validBlockID(worldObj.getBlock(xPos, y, zPos)) && (worldObj.getBlockMetadata(xPos, y, zPos) >= 2)) {
-                    TileEntity te = worldObj.getTileEntity(xPos, y, zPos);
+                for (int zPos = zMin; zPos <= zMax; zPos++)
+                {
+                    Chunk chunk = this.worldObj.getChunkFromBlockCoords(xPos, zPos);
+                    if (chunk == null)
+                        continue;            
+                    int xx = xPos & 15;
+                    int zz = zPos & 15;
+                    if (this.validBlockID(chunk.getBlock(xx, y, zz)) && chunk.getBlockMetadata(xx, y, zz) >= 2) {
+                        TileEntity te = worldObj.getTileEntity(xPos, y, zPos);
 
-                    if (te instanceof MultiServantLogic) {
-                        MultiServantLogic servant = (MultiServantLogic) te;
-                        if (servant.hasValidMaster()) {
-                            if (servant.verifyMaster(this, worldObj, this.xCoord, this.yCoord, this.zCoord))
+                        if (te instanceof MultiServantLogic) {
+                            MultiServantLogic servant = (MultiServantLogic) te;
+                            if (servant.hasValidMaster()) {
+                                if (servant.verifyMaster(this, worldObj, this.xCoord, this.yCoord, this.zCoord))
+                                    bottomBricks++;
+                            } else {
+                                servant.overrideMaster(this.xCoord, this.yCoord, this.zCoord);
                                 bottomBricks++;
-                        } else {
-                            servant.overrideMaster(this.xCoord, this.yCoord, this.zCoord);
-                            bottomBricks++;
+                            }
                         }
                     }
                 }

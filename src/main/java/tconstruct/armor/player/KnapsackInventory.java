@@ -1,16 +1,17 @@
 package tconstruct.armor.player;
 
-import cpw.mods.fml.common.network.ByteBufUtils;
-import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+
+import cpw.mods.fml.common.network.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 public class KnapsackInventory implements IInventory
 {
@@ -165,13 +166,15 @@ public class KnapsackInventory implements IInventory
     public void dropItems ()
     {
         EntityPlayer player = parent.get();
-
-        for (int i = 0; i < inventory.length; ++i)
+        if (player != null)
         {
-            if (this.inventory[i] != null)
+            for (int i = 0; i < inventory.length; ++i)
             {
-                player.func_146097_a(this.inventory[i], true, false);
-                this.inventory[i] = null;
+                if (this.inventory[i] != null)
+                {
+                    player.func_146097_a(this.inventory[i], true, false);
+                    this.inventory[i] = null;
+                }
             }
         }
     }

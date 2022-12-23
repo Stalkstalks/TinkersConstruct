@@ -181,10 +181,13 @@ public class Battleaxe extends AOEHarvestTool implements IBattlegearWeapon
             int boost = time / 100;
             if (boost > 2)
                 boost = 2;
-            player.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, time * 4, boost));
-            player.addPotionEffect(new PotionEffect(Potion.jump.id, time * 4, boost));
-            player.addPotionEffect(new PotionEffect(Potion.damageBoost.id, time * 4, 0));
-            player.addPotionEffect(new PotionEffect(Potion.hunger.id, time * 2, 0));
+            if (!world.isRemote)
+            {
+                player.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, time * 4, boost));
+                player.addPotionEffect(new PotionEffect(Potion.jump.id, time * 4, boost));
+                player.addPotionEffect(new PotionEffect(Potion.damageBoost.id, time * 4, 0));
+                player.addPotionEffect(new PotionEffect(Potion.hunger.id, time * 2, 0));
+            }
             if (time > 5 && player.onGround)
             {
                 player.addExhaustion(0.2F);

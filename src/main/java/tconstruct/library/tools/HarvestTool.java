@@ -244,7 +244,7 @@ public abstract class HarvestTool extends ToolCore
         return used;
     }
 
-    protected void breakExtraBlock(World world, int x, int y, int z, int sidehit, EntityPlayer playerEntity, int refX, int refY, int refZ) {
+    public void breakExtraBlock(World world, int x, int y, int z, int sidehit, EntityPlayer playerEntity, int refX, int refY, int refZ) {
         // prevent calling that stuff for air blocks, could lead to unexpected behaviour since it fires events
         if (world.isAirBlock(x, y, z))
             return;
@@ -289,7 +289,10 @@ public abstract class HarvestTool extends ToolCore
         }
 
         // callback to the tool the player uses. Called on both sides. This damages the tool n stuff.
-        player.getCurrentEquippedItem().func_150999_a(world, block, x, y, z, player);
+        ItemStack currentItem = player.getCurrentEquippedItem();
+        if(currentItem != null) {
+            currentItem.func_150999_a(world, block, x, y, z, player);
+        }
 
         // server sided handling
         if (!world.isRemote) {

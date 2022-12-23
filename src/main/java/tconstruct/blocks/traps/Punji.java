@@ -33,11 +33,14 @@ public class Punji extends MantleBlock
     {
         if (entity instanceof EntityLivingBase)
         {
-            int damage = world.getBlockMetadata(x, y, z) / 2 + 1;
+            int damage = world.getBlockMetadata(x, y, z) + 1;
+            
+            ((EntityLivingBase) entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, damage));
+
             if (entity.fallDistance > 0)
                 damage += ((entity.fallDistance) * 1.5 + 2);
+                
             entity.attackEntityFrom(DamageSource.cactus, damage);
-            ((EntityLivingBase) entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, 1));
         }
     }
 

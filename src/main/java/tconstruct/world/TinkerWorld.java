@@ -370,7 +370,7 @@ public class TinkerWorld
         //
         ItemStack aluBrass = new ItemStack(TinkerTools.materials, 1, 14);
         // Clock Recipe - Vanilla alternative
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Items.clock), " i ", "iri", " i ", 'i', aluBrass, 'r', "dustRedstone"));
+        //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(Items.clock), " i ", "iri", " i ", 'i', aluBrass, 'r', "dustRedstone"));
         // Gold Pressure Plate - Vanilla alternative
         // todo: temporarily disabled due to light weighted pressure plate being smeltable to gold
         //GameRegistry.addRecipe(new ItemStack(Blocks.light_weighted_pressure_plate, 0, 1), "ii", 'i', aluBrass);

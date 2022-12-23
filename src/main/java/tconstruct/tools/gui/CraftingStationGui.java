@@ -1,16 +1,13 @@
 package tconstruct.tools.gui;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.*;
 
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
@@ -20,14 +17,14 @@ import codechicken.nei.api.INEIGuiHandler;
 import codechicken.nei.api.TaggedInventoryArea;
 import cpw.mods.fml.common.Optional;
 import tconstruct.library.TConstructRegistry;
-import tconstruct.library.accessory.AccessoryCore;
-import tconstruct.library.armor.ArmorCore;
 import tconstruct.library.crafting.PatternBuilder;
 import tconstruct.library.modifier.IModifyable;
-import tconstruct.library.tools.*;
+import tconstruct.library.tools.ToolMaterial;
 import tconstruct.library.util.HarvestLevels;
-import tconstruct.mechworks.logic.TileEntityLandmine;
 import tconstruct.tools.logic.CraftingStationLogic;
+
+import java.util.Collections;
+import java.util.List;
 
 @Optional.Interface(iface = "codechicken.nei.api.INEIGuiHandler", modid = "NotEnoughItems")
 public class CraftingStationGui extends GuiContainer implements INEIGuiHandler
@@ -279,7 +276,7 @@ public class CraftingStationGui extends GuiContainer implements INEIGuiHandler
         if (y + h - 4 < guiTop || y + 4 > guiTop + ySize)
             return false;
 
-        if (x + 4 > guiLeft + xSize + (logic.tinkerTable ? 126 : 0))
+        if (x - w - 4 < guiLeft - (logic.chest != null ? 40 : 0) || x + 4 > guiLeft + xSize + (logic.tinkerTable ? 126 : 0))
             return false;
 
         return true;
