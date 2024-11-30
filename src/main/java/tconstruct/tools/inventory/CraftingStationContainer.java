@@ -173,53 +173,53 @@ public class CraftingStationContainer extends Container
 
     public ItemStack transferStackInSlot (EntityPlayer par1EntityPlayer, int par2)
     {
-        ItemStack itemstack = null;
+        ItemStack retStack = null;
         Slot slot = (Slot) this.inventorySlots.get(par2);
 
         if (slot != null && slot.getHasStack())
         {
-            ItemStack itemstack1 = slot.getStack();
-            itemstack = itemstack1.copy();
+            ItemStack itemstack = slot.getStack();
+            retStack = itemstack.copy();
 
             if (par2 == 0)
             {
-                if (itemstack.getItem() instanceof IModifyable)
+                if (retStack.getItem() instanceof IModifyable)
                 {
-                    if (!this.mergeCraftedStack(itemstack1, logic.getSizeInventory(), this.inventorySlots.size(), true, par1EntityPlayer))
+                    if (!this.mergeCraftedStack(itemstack, logic.getSizeInventory(), this.inventorySlots.size(), true, par1EntityPlayer))
                     {
                         return null;
                     }
                 }
                 else
                 {
-                    if (!this.mergeItemStack(itemstack1, 10, 46, true))
+                    if (!this.mergeItemStack(itemstack, 10, 46, true))
                     {
                         return null;
                     }
                 }
 
-                slot.onSlotChange(itemstack1, itemstack);
+                slot.onSlotChange(itemstack, retStack);
             }
             else if (par2 >= 10 && par2 < 37)
             {
-                if (!this.mergeItemStack(itemstack1, 37, 46, false))
+                if (!this.mergeItemStack(itemstack, 37, 46, false))
                 {
                     return null;
                 }
             }
             else if (par2 >= 37 && par2 < 46)
             {
-                if (!this.mergeItemStack(itemstack1, 10, 37, false))
+                if (!this.mergeItemStack(itemstack, 10, 37, false))
                 {
                     return null;
                 }
             }
-            else if (!this.mergeItemStack(itemstack1, 10, 46, false))
+            else if (!this.mergeItemStack(itemstack, 10, 46, false))
             {
                 return null;
             }
 
-            if (itemstack1.stackSize == 0)
+            if (itemstack.stackSize == 0)
             {
                 slot.putStack((ItemStack) null);
             }
@@ -228,15 +228,15 @@ public class CraftingStationContainer extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize == itemstack.stackSize)
+            if (itemstack.stackSize == retStack.stackSize)
             {
                 return null;
             }
 
-            slot.onPickupFromSlot(par1EntityPlayer, itemstack1);
+            slot.onPickupFromSlot(par1EntityPlayer, itemstack);
         }
 
-        return itemstack;
+        return retStack;
     }
 
     protected boolean mergeCraftedStack (ItemStack stack, int slotsStart, int slotsTotal, boolean playerInventory, EntityPlayer player)
