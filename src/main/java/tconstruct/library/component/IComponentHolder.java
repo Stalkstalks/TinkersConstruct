@@ -2,7 +2,7 @@ package tconstruct.library.component;
 
 import java.util.List;
 
-public interface IComponentHolder
-{
-    public List<LogicComponent> getComponents ();
+public interface IComponentHolder {
+
+    List<LogicComponent> getComponents();
 }

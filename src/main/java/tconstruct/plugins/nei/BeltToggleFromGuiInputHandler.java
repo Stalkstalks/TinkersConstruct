@@ -1,15 +1,17 @@
 package tconstruct.plugins.nei;
 
+import net.minecraft.client.gui.inventory.GuiContainer;
+
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.api.API;
 import codechicken.nei.guihook.GuiContainerManager;
 import codechicken.nei.guihook.IContainerInputHandler;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import tconstruct.client.ArmorControls;
 
 public class BeltToggleFromGuiInputHandler implements IContainerInputHandler {
 
     static final String KEY_IDENTIFIER = "gui.tinkers_belt";
+
     public static void init() {
         API.addKeyBind(KEY_IDENTIFIER, 0);
         GuiContainerManager.addInputHandler(new BeltToggleFromGuiInputHandler());
@@ -19,7 +21,7 @@ public class BeltToggleFromGuiInputHandler implements IContainerInputHandler {
     public boolean keyTyped(GuiContainer guiContainer, char c, int i) {
         if (i == 0) {
             return false;
-        }        
+        }
         final int keyBinding = NEIClientConfig.getKeyBinding(KEY_IDENTIFIER);
         if (keyBinding == 0 || i != keyBinding) {
             return false;

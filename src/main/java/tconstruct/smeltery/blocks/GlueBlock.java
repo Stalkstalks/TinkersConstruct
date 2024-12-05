@@ -1,29 +1,28 @@
 package tconstruct.smeltery.blocks;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
-import net.minecraft.potion.*;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+
 import tconstruct.blocks.TConstructBlock;
 
-public class GlueBlock extends TConstructBlock
-{
+public class GlueBlock extends TConstructBlock {
 
-    public GlueBlock()
-    {
+    public GlueBlock() {
         super(Material.ground, 4.0f, new String[] { "glue" });
     }
 
     @Override
-    public void onEntityCollidedWithBlock (World world, int x, int y, int z, Entity entity)
-    {
+    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         entity.motionX *= 0.1;
         entity.motionZ *= 0.1;
 
-        if (entity instanceof EntityLivingBase)
-        {
+        if (entity instanceof EntityLivingBase) {
             EntityLivingBase living = (EntityLivingBase) entity;
             // Well you'd feel ill too standing on glue...
             living.addPotionEffect(new PotionEffect(Potion.hunger.getId(), 20, 4));
@@ -34,9 +33,7 @@ public class GlueBlock extends TConstructBlock
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBoxFromPool (World world, int x, int y, int z)
-    {
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
         return Blocks.soul_sand.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
-
 }

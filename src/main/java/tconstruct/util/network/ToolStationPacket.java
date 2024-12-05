@@ -1,25 +1,22 @@
 package tconstruct.util.network;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import mantle.common.network.AbstractPacket;
-import net.minecraft.entity.player.EntityPlayer;
 import tconstruct.tools.inventory.ToolStationContainer;
 import tconstruct.tools.logic.ToolStationLogic;
 
-public class ToolStationPacket extends AbstractPacket
-{
+public class ToolStationPacket extends AbstractPacket {
 
     private int x, y, z;
     private String toolName;
 
-    public ToolStationPacket()
-    {
-    }
+    public ToolStationPacket() {}
 
-    public ToolStationPacket(int x, int y, int z, String toolName)
-    {
+    public ToolStationPacket(int x, int y, int z, String toolName) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -27,8 +24,7 @@ public class ToolStationPacket extends AbstractPacket
     }
 
     @Override
-    public void encodeInto (ChannelHandlerContext ctx, ByteBuf buffer)
-    {
+    public void encodeInto(ChannelHandlerContext ctx, ByteBuf buffer) {
         buffer.writeInt(x);
         buffer.writeInt(y);
         buffer.writeInt(z);
@@ -36,8 +32,7 @@ public class ToolStationPacket extends AbstractPacket
     }
 
     @Override
-    public void decodeInto (ChannelHandlerContext ctx, ByteBuf buffer)
-    {
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf buffer) {
         x = buffer.readInt();
         y = buffer.readInt();
         z = buffer.readInt();
@@ -45,19 +40,14 @@ public class ToolStationPacket extends AbstractPacket
     }
 
     @Override
-    public void handleClientSide (EntityPlayer player)
-    {
-    }
+    public void handleClientSide(EntityPlayer player) {}
 
     @Override
-    public void handleServerSide (EntityPlayer player)
-    {
-        if (player.openContainer != null && player.openContainer instanceof ToolStationContainer)
-        {
+    public void handleServerSide(EntityPlayer player) {
+        if (player.openContainer instanceof ToolStationContainer) {
             ToolStationContainer container = (ToolStationContainer) player.openContainer;
             ToolStationLogic logic = container.logic;
-            if (logic != null && logic.xCoord == x && logic.yCoord == y && logic.zCoord == z)
-            {
+            if (logic != null && logic.xCoord == x && logic.yCoord == y && logic.zCoord == z) {
                 logic.setToolname(toolName);
             }
         }

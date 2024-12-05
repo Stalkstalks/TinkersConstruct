@@ -6,31 +6,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
-public class FancyEntityItem extends EntityItem
-{
-    public FancyEntityItem(World par1World, double par2, double par4, double par6)
-    {
+import tconstruct.util.config.PHConstruct;
+
+public class FancyEntityItem extends EntityItem {
+
+    public FancyEntityItem(World par1World, double par2, double par4, double par6) {
         super(par1World, par2, par4, par6);
-        this.isImmuneToFire = true;
-        this.lifespan = 72000;
+        if (PHConstruct.indestructible) {
+            this.isImmuneToFire = true;
+            this.lifespan = 72000;
+        }
     }
 
-    public FancyEntityItem(World par1World, double par2, double par4, double par6, ItemStack par8ItemStack)
-    {
+    public FancyEntityItem(World par1World, double par2, double par4, double par6, ItemStack par8ItemStack) {
         this(par1World, par2, par4, par6);
         this.setEntityItemStack(par8ItemStack);
-        this.lifespan = (par8ItemStack.getItem() == null ? 6000 : par8ItemStack.getItem().getEntityLifespan(par8ItemStack, par1World));
+        this.lifespan = (par8ItemStack.getItem() == null ? 6000
+                : par8ItemStack.getItem().getEntityLifespan(par8ItemStack, par1World));
     }
 
-    public FancyEntityItem(World par1World)
-    {
+    public FancyEntityItem(World par1World) {
         super(par1World);
-        this.isImmuneToFire = true;
-        this.lifespan = 72000;
+        if (PHConstruct.indestructible) {
+            this.isImmuneToFire = true;
+            this.lifespan = 72000;
+        }
     }
 
-    public FancyEntityItem(World world, Entity original, ItemStack stack)
-    {
+    public FancyEntityItem(World world, Entity original, ItemStack stack) {
         this(world, original.posX, original.posY, original.posZ);
         this.delayBeforeCanPickup = 20;
         this.motionX = original.motionX;
@@ -39,10 +42,12 @@ public class FancyEntityItem extends EntityItem
         this.setEntityItemStack(stack);
     }
 
-    public boolean attackEntityFrom (DamageSource par1DamageSource, float par2)
-    {
-        if (par1DamageSource.getDamageType().equals("outOfWorld"))
-            return true;
-        return false;
+    public boolean attackEntityFrom(DamageSource par1DamageSource, float par2) {
+        if (PHConstruct.indestructible) {
+            if (par1DamageSource.getDamageType().equals("outOfWorld")) return true;
+            return false;
+        } else {
+            return super.attackEntityFrom(par1DamageSource, par2);
+        }
     }
 }

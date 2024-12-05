@@ -1,65 +1,85 @@
 package tconstruct.world;
 
-import cpw.mods.fml.common.eventhandler.*;
-import net.minecraft.entity.*;
+import java.util.ArrayList;
+
+import javax.annotation.Nonnull;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.item.*;
-import net.minecraft.entity.monster.*;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityGhast;
+import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.*;
-import net.minecraft.potion.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.event.entity.living.*;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 
+import com.kuba6000.mobsinfo.api.ConstructableItemStack;
+import com.kuba6000.mobsinfo.api.IMobExtraInfoProvider;
+import com.kuba6000.mobsinfo.api.MobDrop;
+import com.kuba6000.mobsinfo.api.MobRecipe;
+
+import cpw.mods.fml.common.Optional;
+import cpw.mods.fml.common.eventhandler.Event;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import tconstruct.TConstruct;
 import tconstruct.tools.TinkerTools;
 import tconstruct.util.ItemHelper;
 import tconstruct.util.config.PHConstruct;
 
+@Optional.Interface(iface = "com.kuba6000.mobsinfo.api.IMobExtraInfoProvider", modid = "mobsinfo")
+public class TinkerWorldEvents implements IMobExtraInfoProvider {
 
-public class TinkerWorldEvents
-{
     @SubscribeEvent
-    public void onLivingSpawn (LivingSpawnEvent.SpecialSpawn event)
-    {
+    public void onLivingSpawn(LivingSpawnEvent.SpecialSpawn event) {
         EntityLivingBase living = event.entityLiving;
-        if (living.getClass() == EntitySpider.class && TConstruct.random.nextInt(100) == 0)
-        {
+        if (living.getClass() == EntitySpider.class && TConstruct.random.nextInt(100) == 0) {
             EntityCreeper creeper = new EntityCreeper(living.worldObj);
             spawnEntityLiving(living.posX, living.posY + 1, living.posZ, creeper, living.worldObj);
-            if (living.riddenByEntity != null)
-                creeper.mountEntity(living.riddenByEntity);
-            else
-                creeper.mountEntity(living);
+            if (living.riddenByEntity != null) creeper.mountEntity(living.riddenByEntity);
+            else creeper.mountEntity(living);
 
-            EntityXPOrb orb = new EntityXPOrb(living.worldObj, living.posX, living.posY, living.posZ, TConstruct.random.nextInt(20) + 20);
+            EntityXPOrb orb = new EntityXPOrb(
+                    living.worldObj,
+                    living.posX,
+                    living.posY,
+                    living.posZ,
+                    TConstruct.random.nextInt(20) + 20);
             orb.mountEntity(creeper);
         }
     }
 
-    public static void spawnEntityLiving (double x, double y, double z, EntityLiving entity, World world)
-    {
-        if (!world.isRemote)
-        {
+    public static void spawnEntityLiving(double x, double y, double z, EntityLiving entity, World world) {
+        if (!world.isRemote) {
             entity.setPosition(x, y, z);
-            entity.onSpawnWithEgg((IEntityLivingData) null);
+            entity.onSpawnWithEgg(null);
             world.spawnEntityInWorld(entity);
         }
     }
 
     /* Bonemeal */
     @SubscribeEvent
-    public void bonemealEvent (BonemealEvent event)
-    {
-        if (!event.world.isRemote)
-        {
-            if (event.block == TinkerWorld.slimeSapling)
-            {
-                if (TinkerWorld.slimeSapling.boneFertilize(event.world, event.x, event.y, event.z, event.world.rand, event.entityPlayer))
+    public void bonemealEvent(BonemealEvent event) {
+        if (!event.world.isRemote) {
+            if (event.block == TinkerWorld.slimeSapling) {
+                if (TinkerWorld.slimeSapling
+                        .boneFertilize(event.world, event.x, event.y, event.z, event.world.rand, event.entityPlayer))
                     event.setResult(Event.Result.ALLOW);
             }
         }
@@ -67,40 +87,30 @@ public class TinkerWorldEvents
 
     /* Damage */
     @SubscribeEvent
-    public void onHurt (LivingHurtEvent event)
-    {
+    public void onHurt(LivingHurtEvent event) {
         EntityLivingBase reciever = event.entityLiving;
-        if (reciever instanceof EntityPlayer)
-        {
+        if (reciever instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) event.entityLiving;
             // Cutlass
             ItemStack stack = player.getCurrentEquippedItem();
-            if (stack != null && player.isUsingItem())
-            {
+            if (stack != null && player.isUsingItem()) {
                 Item item = stack.getItem();
-                if (item == TinkerTools.cutlass)
-                {
+                if (item == TinkerTools.cutlass) {
                     player.addPotionEffect(new PotionEffect(Potion.moveSpeed.id, 3 * 20, 1));
-                }
-                else if (item == TinkerTools.battlesign)
-                {
-                    event.ammount *= 1.5; //Puts battlesign blocking at 3/4 instead of 1/2
+                } else if (item == TinkerTools.battlesign) {
+                    event.ammount *= 1.5; // Puts battlesign blocking at 3/4 instead of 1/2
                 }
             }
-        }
-        else if (reciever instanceof EntityCreeper)
-        {
+        } else if (reciever instanceof EntityCreeper) {
             Entity attacker = event.source.getEntity();
-            if (attacker instanceof EntityLivingBase)
-            {
+            if (attacker instanceof EntityLivingBase) {
                 Entity target = ((EntityCreeper) reciever).getAttackTarget();
-                if (target != null)
-                {
+                if (target != null) {
                     float d1 = reciever.getDistanceToEntity(((EntityCreeper) reciever).getAttackTarget());
                     float d2 = reciever.getDistanceToEntity(attacker);
-                    if (d2 < d1)
-                    {
-                        ((EntityCreeper) event.entityLiving).setAttackTarget((EntityLivingBase) event.source.getEntity());
+                    if (d2 < d1) {
+                        ((EntityCreeper) event.entityLiving)
+                                .setAttackTarget((EntityLivingBase) event.source.getEntity());
                     }
                 }
             }
@@ -108,125 +118,110 @@ public class TinkerWorldEvents
     }
 
     @SubscribeEvent
-    public void onLivingDrop (LivingDropsEvent event)
-    {
-        if (event.entityLiving == null)
-            return;
+    public void onLivingDrop(LivingDropsEvent event) {
+        // ANY CHANGE MADE IN HERE MUST ALSO BE MADE IN provideExtraDropsInformation!
+        if (event.entityLiving == null) return;
 
-        if (event.entityLiving.getClass() == EntityGhast.class)
-        {
-            if (PHConstruct.uhcGhastDrops)
-            {
-                for (EntityItem o : event.drops)
-                {
-                    if (o.getEntityItem().getItem() == Items.ghast_tear)
-                    {
+        if (event.entityLiving.getClass() == EntityGhast.class) {
+            if (PHConstruct.uhcGhastDrops) {
+                for (EntityItem o : event.drops) {
+                    if (o.getEntityItem().getItem() == Items.ghast_tear) {
                         o.setEntityItemStack(new ItemStack(Items.gold_ingot, 1));
                     }
                 }
-            }
-            else
-            {
+            } else {
                 ItemHelper.addDrops(event, new ItemStack(Items.ghast_tear, 1));
             }
         }
     }
-    
-	/*
-    @SubscribeEvent
-    public void thiefAttempt(EntityInteractEvent ev)
-    {
-        if (((ev.target instanceof EntityLiving)) && (!(ev.target instanceof EntityPlayer)))
-        {
-            if ((((EntityLiving)ev.target).getAttackTarget() != null) && (((EntityLiving)ev.target).getAttackTarget().equals(ev.entityPlayer)))
-                return;
-        }
-        int randomIndex = (int)Math.round(Math.random() * 80.0D);
-        if (randomIndex > 5)
-             return;
-        double dp = getDP((EntityLiving)ev.target,ev.entityPlayer);
-        if(dp > -0.35)
-            return;
 
-        if(randomIndex == 5)
-            randomIndex = 0;
-        ItemStack itemStack = ((EntityLiving)ev.target).getEquipmentInSlot(randomIndex);
-        if (itemStack != null)
-        {
-            int oldStackSize = itemStack.stackSize;
-            int oldStackDamage = itemStack.getItemDamage();
-            itemStack.stackSize = 1;
-            ev.entityPlayer.inventory.addItemStackToInventory(itemStack);
-            itemStack.stackSize = (oldStackSize - 1);
-            itemStack.setItemDamage(oldStackDamage);
-            if (itemStack.stackSize <= 0)
-                itemStack = null;
-        
-            ev.target.setCurrentItemOrArmor(randomIndex, itemStack);
-        }
-    }*/
-    
+    /*
+     * @SubscribeEvent public void thiefAttempt(EntityInteractEvent ev) { if (((ev.target instanceof EntityLiving)) &&
+     * (!(ev.target instanceof EntityPlayer))) { if ((((EntityLiving)ev.target).getAttackTarget() != null) &&
+     * (((EntityLiving)ev.target).getAttackTarget().equals(ev.entityPlayer))) return; } int randomIndex =
+     * (int)Math.round(Math.random() * 80.0D); if (randomIndex > 5) return; double dp =
+     * getDP((EntityLiving)ev.target,ev.entityPlayer); if(dp > -0.35) return; if(randomIndex == 5) randomIndex = 0;
+     * ItemStack itemStack = ((EntityLiving)ev.target).getEquipmentInSlot(randomIndex); if (itemStack != null) { int
+     * oldStackSize = itemStack.stackSize; int oldStackDamage = itemStack.getItemDamage(); itemStack.stackSize = 1;
+     * ev.entityPlayer.inventory.addItemStackToInventory(itemStack); itemStack.stackSize = (oldStackSize - 1);
+     * itemStack.setItemDamage(oldStackDamage); if (itemStack.stackSize <= 0) itemStack = null;
+     * ev.target.setCurrentItemOrArmor(randomIndex, itemStack); } }
+     */
+
     @SubscribeEvent
-    public void checkForStealthGain(LivingEvent.LivingUpdateEvent ev)
-    {
-        if(ev.entity == null || !(ev.entity instanceof EntityCreature))
-            return;
-        
+    public void checkForStealthGain(LivingEvent.LivingUpdateEvent ev) {
+        if (ev.entity == null || !(ev.entity instanceof EntityCreature)) return;
+
         EntityCreature entity = (EntityCreature) ev.entity;
         Entity attackTarget = entity.getAttackTarget();
-      
-        if(attackTarget != null && makeStealthCheck(entity, attackTarget))
-        {
-            entity.setAttackTarget(null); 
-            if(entity.getEntityToAttack() == attackTarget)
-                entity.setTarget(null);
-            if(entity.getAITarget() == attackTarget)
-                entity.setRevengeTarget(null);
+
+        if (attackTarget != null && makeStealthCheck(entity, attackTarget)) {
+            entity.setAttackTarget(null);
+            if (entity.getEntityToAttack() == attackTarget) entity.setTarget(null);
+            if (entity.getAITarget() == attackTarget) entity.setRevengeTarget(null);
         }
     }
-    
+
     @SubscribeEvent
-    public void onLivingSetAttackTarget(LivingSetAttackTargetEvent ev)
-    {
-        if(ev.entity == null || !(ev.entity instanceof EntityCreature))
-            return;
-        
-        EntityCreature entity = (EntityCreature) ev.entity;        
-        if(ev.target != null && makeStealthCheck(entity, ev.target))
-        {
+    public void onLivingSetAttackTarget(LivingSetAttackTargetEvent ev) {
+        if (ev.entity == null || !(ev.entity instanceof EntityCreature)) return;
+
+        EntityCreature entity = (EntityCreature) ev.entity;
+        if (ev.target != null && makeStealthCheck(entity, ev.target)) {
             entity.setAttackTarget(null);
         }
     }
-        
-    protected boolean makeStealthCheck(EntityCreature actor, Entity target)
-    {   
-        if(target != null && target instanceof EntityPlayer)
-        {
+
+    protected boolean makeStealthCheck(EntityCreature actor, Entity target) {
+        if (target != null && target instanceof EntityPlayer) {
             IAttributeInstance iattributeinstance = actor.getEntityAttribute(SharedMonsterAttributes.followRange);
             double distance = (iattributeinstance == null) ? 16.0D : iattributeinstance.getAttributeValue();
             distance *= distance;
-            
-            double dp = getDP(actor,(EntityPlayer)target);
-            if(dp < 0.5)
-            {
+
+            double dp = getDP(actor, (EntityPlayer) target);
+            if (dp < 0.5) {
                 double actualDistance = 0;
-                double distancePart = target.posX-actor.posX;
+                double distancePart = target.posX - actor.posX;
                 actualDistance += distancePart * distancePart;
-                distancePart = target.posY-actor.posY ;
+                distancePart = target.posY - actor.posY;
                 actualDistance += distancePart * distancePart;
-                distancePart = target.posZ-actor.posZ;
+                distancePart = target.posZ - actor.posZ;
                 actualDistance += distancePart * distancePart;
-                if(actualDistance > distance + (distance*dp))
-                    return true;
+                if (actualDistance > distance + (distance * dp)) return true;
             }
         }
         return false;
     }
-                
-    protected double getDP(EntityLivingBase self, EntityLivingBase target)
-    {
-        Vec3 targetVec = Vec3.createVectorHelper(target.posX-self.posX , target.posY-self.posY , target.posZ-self.posZ).normalize();
+
+    protected double getDP(EntityLivingBase self, EntityLivingBase target) {
+        Vec3 targetVec = Vec3
+                .createVectorHelper(target.posX - self.posX, target.posY - self.posY, target.posZ - self.posZ)
+                .normalize();
         Vec3 lookVec = self.getLookVec();
-        return (targetVec.xCoord * lookVec.xCoord) + (targetVec.yCoord * lookVec.yCoord) + (targetVec.zCoord * lookVec.zCoord);
+        return (targetVec.xCoord * lookVec.xCoord) + (targetVec.yCoord * lookVec.yCoord)
+                + (targetVec.zCoord * lookVec.zCoord);
+    }
+
+    @Optional.Method(modid = "mobsinfo")
+    @Override
+    public void provideExtraDropsInformation(@Nonnull String entityString, @Nonnull ArrayList<MobDrop> drops,
+            @Nonnull MobRecipe recipe) {
+        if (recipe.entity.getClass() == EntityGhast.class) {
+            if (PHConstruct.uhcGhastDrops) {
+                for (MobDrop drop : drops) {
+                    if (drop.stack.getItem() == Items.ghast_tear) {
+                        drop.stack = new ItemStack(Items.gold_ingot);
+                        drop.reconstructableStack = new ConstructableItemStack(drop.stack);
+                    }
+                }
+            } else {
+                for (MobDrop drop : drops) {
+                    if (drop.stack.getItem() == Items.ghast_tear) {
+                        drop.chance += 10000;
+                        drop.clampChance();
+                    }
+                }
+            }
+        }
     }
 }

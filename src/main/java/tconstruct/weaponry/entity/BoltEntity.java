@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 public class BoltEntity extends ArrowEntity {
+
     public BoltEntity(World world) {
         super(world);
         this.setSize(0.3f, 0.3f);
@@ -22,8 +23,7 @@ public class BoltEntity extends ArrowEntity {
 
     @Override
     protected void updateInAir() {
-        if(this.ticksInAir > 1)
-            this.setIsCritical(true);
+        if (this.ticksInAir > 1) this.setIsCritical(true);
 
         super.updateInAir();
     }

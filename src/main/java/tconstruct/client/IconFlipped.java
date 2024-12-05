@@ -4,6 +4,7 @@ import net.minecraft.util.IIcon;
 
 // required to fix Mojansg bugs...
 public class IconFlipped extends net.minecraft.client.renderer.IconFlipped {
+
     private final IIcon baseIcon;
     private final boolean flipV;
 
@@ -15,8 +16,7 @@ public class IconFlipped extends net.minecraft.client.renderer.IconFlipped {
     }
 
     // has a faulty implementation in original class
-    public float getMinV()
-    {
+    public float getMinV() {
         return this.flipV ? this.baseIcon.getMaxV() : this.baseIcon.getMinV();
     }
 }

@@ -1,12 +1,8 @@
 package tconstruct.weaponry.weapons;
 
-import tconstruct.weaponry.TinkerWeaponry;
-import tconstruct.weaponry.client.CrosshairType;
-import tconstruct.client.IconFlipped;
-import tconstruct.weaponry.entity.ShurikenEntity;
-import tconstruct.library.weaponry.AmmoWeapon;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.util.Iterator;
+import java.util.Map;
+
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,8 +12,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
-import java.util.Map;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import tconstruct.client.IconFlipped;
+import tconstruct.library.weaponry.AmmoWeapon;
+import tconstruct.weaponry.TinkerWeaponry;
+import tconstruct.weaponry.client.CrosshairType;
+import tconstruct.weaponry.entity.ShurikenEntity;
 
 public class Shuriken extends AmmoWeapon {
 
@@ -52,18 +53,14 @@ public class Shuriken extends AmmoWeapon {
 
     @Override
     public String getIconSuffix(int partType) {
-        switch (partType)
-        {
+        switch (partType) {
             case 0:
+            case 2:
+            case 3:
+            case 4:
                 return "_shuriken";
             case 1:
                 return ""; // no broken, since it runs out of ammo
-            case 2:
-                return "_shuriken";
-            case 3:
-                return "_shuriken";
-            case 4:
-                return "_shuriken";
             default:
                 return "";
         }
@@ -116,8 +113,7 @@ public class Shuriken extends AmmoWeapon {
 
     @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
-        if(getAmmoCount(stack) <= 0)
-            return stack;
+        if (getAmmoCount(stack) <= 0) return stack;
 
         launchProjectile(stack, world, player, 1);
 
@@ -160,8 +156,7 @@ public class Shuriken extends AmmoWeapon {
         // now we flip all the different part icons, so we only need 1 graphic for 4 different orientations \o/
         // handle first: flip x
         Iterator<Map.Entry<Integer, IIcon>> iter = handleIcons.entrySet().iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             Map.Entry<Integer, IIcon> entry = iter.next();
             entry.setValue(new IconFlipped(entry.getValue(), true, false));
             // the entry object should reference the direct object in the map, no further updating needed
@@ -169,16 +164,14 @@ public class Shuriken extends AmmoWeapon {
 
         // accessory: flip y
         iter = accessoryIcons.entrySet().iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             Map.Entry<Integer, IIcon> entry = iter.next();
             entry.setValue(new IconFlipped(entry.getValue(), false, true));
         }
 
         // extra: flip x and y
         iter = extraIcons.entrySet().iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             Map.Entry<Integer, IIcon> entry = iter.next();
             entry.setValue(new IconFlipped(entry.getValue(), true, true));
         }
@@ -189,6 +182,4 @@ public class Shuriken extends AmmoWeapon {
     public CrosshairType getCrosshairType() {
         return CrosshairType.TIP;
     }
-
-
 }

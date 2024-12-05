@@ -1,7 +1,8 @@
 package tconstruct.library.event;
 
-import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraftforge.fluids.FluidStack;
+
+import cpw.mods.fml.common.eventhandler.Event;
 import tconstruct.library.crafting.CastingRecipe;
 
 /**
@@ -9,29 +10,26 @@ import tconstruct.library.crafting.CastingRecipe;
  *
  * Set result to DENY to prevent casting.
  */
-public abstract class SmelteryCastEvent extends Event
-{
+public abstract class SmelteryCastEvent extends Event {
+
     public final CastingRecipe recipe;
     public final FluidStack fluid;
 
-    public SmelteryCastEvent(CastingRecipe recipe, FluidStack fluid)
-    {
+    public SmelteryCastEvent(CastingRecipe recipe, FluidStack fluid) {
         this.recipe = recipe;
         this.fluid = fluid;
     }
 
-    public static class CastingTable extends SmelteryCastEvent
-    {
-        public CastingTable(CastingRecipe recipe, FluidStack fluid)
-        {
+    public static class CastingTable extends SmelteryCastEvent {
+
+        public CastingTable(CastingRecipe recipe, FluidStack fluid) {
             super(recipe, fluid);
         }
     }
 
-    public static class CastingBasin extends SmelteryCastEvent
-    {
-        public CastingBasin(CastingRecipe recipe, FluidStack fluid)
-        {
+    public static class CastingBasin extends SmelteryCastEvent {
+
+        public CastingBasin(CastingRecipe recipe, FluidStack fluid) {
             super(recipe, fluid);
         }
     }

@@ -1,21 +1,22 @@
 package tconstruct.library.crafting;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.minecraft.block.Block;
 import net.minecraftforge.fluids.Fluid;
 
-public class FluidType
-{
+public class FluidType {
+
     public final Block renderBlock;
     public final int renderMeta;
     public final int baseTemperature;
     public final Fluid fluid;
     public final boolean isToolpart;
 
-    public static HashMap<String, FluidType> fluidTypes = new HashMap<String, FluidType>();
+    public static HashMap<String, FluidType> fluidTypes = new HashMap<>();
 
-    public FluidType(Block block, int meta, int baseTemperature, Fluid fluid, boolean isToolpart)
-    {
+    public FluidType(Block block, int meta, int baseTemperature, Fluid fluid, boolean isToolpart) {
         this.renderBlock = block;
         this.renderMeta = meta;
         this.baseTemperature = baseTemperature;
@@ -23,42 +24,34 @@ public class FluidType
         this.isToolpart = isToolpart;
     }
 
-    public static void registerFluidType (String name, FluidType type)
-    {
+    public static void registerFluidType(String name, FluidType type) {
         fluidTypes.put(name, type);
     }
 
-    public static void registerFluidType (String name, Block block, int meta, int baseTemperature, Fluid fluid, boolean isToolpart)
-    {
+    public static void registerFluidType(String name, Block block, int meta, int baseTemperature, Fluid fluid,
+            boolean isToolpart) {
         FluidType type = new FluidType(block, meta, baseTemperature, fluid, isToolpart);
         registerFluidType(name, type);
     }
 
-    public static FluidType getFluidType (String typeName)
-    {
+    public static FluidType getFluidType(String typeName) {
         return fluidTypes.get(typeName);
     }
 
-    public static FluidType getFluidType (Fluid searchedFluid)
-    {
-        Iterator iter = fluidTypes.entrySet().iterator();
-        while (iter.hasNext())
-        {
-            Map.Entry pairs = (Map.Entry) iter.next();
-            if (((FluidType) pairs.getValue()).fluid.equals(searchedFluid))
-                return (FluidType) pairs.getValue();
+    public static FluidType getFluidType(Fluid searchedFluid) {
+        for (Map.Entry<String, FluidType> stringFluidTypeEntry : fluidTypes.entrySet()) {
+            if (stringFluidTypeEntry.getValue().fluid.equals(searchedFluid)) {
+                return stringFluidTypeEntry.getValue();
+            }
         }
         return null;
     }
 
-    public static int getTemperatureByFluid (Fluid searchedFluid)
-    {
-        Iterator iter = fluidTypes.entrySet().iterator();
-        while (iter.hasNext())
-        {
-            Map.Entry pairs = (Map.Entry) iter.next();
-            if (((FluidType) pairs.getValue()).fluid.equals(searchedFluid))
-                return ((FluidType) pairs.getValue()).baseTemperature;
+    public static int getTemperatureByFluid(Fluid searchedFluid) {
+        for (Map.Entry<String, FluidType> stringFluidTypeEntry : fluidTypes.entrySet()) {
+            if (stringFluidTypeEntry.getValue().fluid.equals(searchedFluid)) {
+                return stringFluidTypeEntry.getValue().baseTemperature;
+            }
         }
         return 800;
     }

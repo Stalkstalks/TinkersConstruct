@@ -1,26 +1,34 @@
 package tconstruct.blocks.slime;
 
-import cpw.mods.fml.relauncher.*;
-import java.util.*;
-import net.minecraft.block.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockBush;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.*;
-import net.minecraftforge.common.*;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.IShearable;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import tconstruct.library.TConstructRegistry;
 
-public class SlimeTallGrass extends BlockBush implements IShearable
-{
+public class SlimeTallGrass extends BlockBush implements IShearable {
+
     private static final String[] grassTypes = new String[] { "slimegrass_blue_tall" };
+
     @SideOnly(Side.CLIENT)
     private IIcon[] iconArray;
 
-    public SlimeTallGrass()
-    {
+    public SlimeTallGrass() {
         super(Material.vine);
         float f = 0.4F;
         this.setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, 0.8F, 0.5F + f);
@@ -32,27 +40,23 @@ public class SlimeTallGrass extends BlockBush implements IShearable
     /**
      * From the specified side and block metadata retrieves the blocks texture. Args: side, metadata
      */
-    public IIcon getIcon (int side, int meta)
-    {
-        meta = MathHelper.clamp_int(meta, 0, iconArray.length-1);
+    public IIcon getIcon(int side, int meta) {
+        meta = MathHelper.clamp_int(meta, 0, iconArray.length - 1);
         return this.iconArray[meta];
     }
 
     /**
      * Returns the ID of the items to drop on destruction.
      */
-    public int idDropped (int par1, Random par2Random, int par3)
-    {
+    public int idDropped(int par1, Random par2Random, int par3) {
         return -1;
     }
 
     /**
-     * Returns the usual quantity dropped by the block plus a bonus of 1 to 'i'
-     * (inclusive).
+     * Returns the usual quantity dropped by the block plus a bonus of 1 to 'i' (inclusive).
      */
     @Override
-    public int quantityDroppedWithBonus (int par1, Random par2Random)
-    {
+    public int quantityDroppedWithBonus(int par1, Random par2Random) {
         return 1 + par2Random.nextInt(par1 * 2 + 1);
     }
 
@@ -60,8 +64,7 @@ public class SlimeTallGrass extends BlockBush implements IShearable
      * Get the block's damage value (for use with pick block).
      */
     @Override
-    public int getDamageValue (World par1World, int par2, int par3, int par4)
-    {
+    public int getDamageValue(World par1World, int par2, int par3, int par4) {
         return par1World.getBlockMetadata(par2, par3, par4);
     }
 
@@ -69,10 +72,8 @@ public class SlimeTallGrass extends BlockBush implements IShearable
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void getSubBlocks (Block b, CreativeTabs par2CreativeTabs, List par3List)
-    {
-        for (int j = 0; j < 1; ++j)
-        {
+    public void getSubBlocks(Block b, CreativeTabs par2CreativeTabs, List<ItemStack> par3List) {
+        for (int j = 0; j < 1; ++j) {
             par3List.add(new ItemStack(b, 1, j));
         }
     }
@@ -83,43 +84,36 @@ public class SlimeTallGrass extends BlockBush implements IShearable
      * When this method is called, your block should register all the icons it needs with the given IconRegister. This
      * is the only chance you get to register icons.
      */
-    public void registerBlockIcons (IIconRegister par1IconRegister)
-    {
+    public void registerBlockIcons(IIconRegister par1IconRegister) {
         this.iconArray = new IIcon[grassTypes.length];
 
-        for (int i = 0; i < this.iconArray.length; ++i)
-        {
+        for (int i = 0; i < this.iconArray.length; ++i) {
             this.iconArray[i] = par1IconRegister.registerIcon("tinker:" + grassTypes[i]);
         }
     }
 
     @Override
-    public ArrayList<ItemStack> getDrops (World world, int x, int y, int z, int meta, int fortune)
-    {
-        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-        if (world.rand.nextInt(8) != 0)
-        {
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int meta, int fortune) {
+        ArrayList<ItemStack> ret = new ArrayList<>();
+        if (world.rand.nextInt(8) != 0) {
             return ret;
         }
 
         ItemStack item = ForgeHooks.getGrassSeed(world);
-        if (item != null)
-        {
+        if (item != null) {
             ret.add(item);
         }
         return ret;
     }
 
     @Override
-    public boolean isShearable (ItemStack item, IBlockAccess world, int x, int y, int z)
-    {
+    public boolean isShearable(ItemStack item, IBlockAccess world, int x, int y, int z) {
         return true;
     }
 
     @Override
-    public ArrayList<ItemStack> onSheared (ItemStack item, IBlockAccess world, int x, int y, int z, int fortune)
-    {
-        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+    public ArrayList<ItemStack> onSheared(ItemStack item, IBlockAccess world, int x, int y, int z, int fortune) {
+        ArrayList<ItemStack> ret = new ArrayList<>();
         ret.add(new ItemStack(this, 1, world.getBlockMetadata(x, y, z)));
         return ret;
     }

@@ -1,5 +1,4 @@
 package tconstruct.library;
 
-public interface ItemBlocklike
-{
+public interface ItemBlocklike {
 }

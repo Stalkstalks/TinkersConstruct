@@ -1,49 +1,48 @@
 package tconstruct.library.weaponry;
 
-import net.minecraft.init.Items;
-import net.minecraft.util.StatCollector;
-import tconstruct.client.TProxyClient;
-import tconstruct.library.TConstructRegistry;
-import tconstruct.weaponry.TinkerWeaponry;
-import tconstruct.weaponry.ammo.ArrowAmmo;
-import tconstruct.weaponry.ammo.BoltAmmo;
-import tconstruct.weaponry.client.CrosshairType;
-import mods.battlegear2.api.IUsableItem;
-import mods.battlegear2.api.PlayerEventChild;
-import mods.battlegear2.api.weapons.IBattlegearWeapon;
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import tconstruct.library.tools.AbilityHelper;
-import tconstruct.library.tools.ToolCore;
-import tconstruct.library.util.TextureHelper;
-import tconstruct.weaponry.entity.ArrowEntity;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.EnumAction;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.ArrowLooseEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+
+import cpw.mods.fml.common.Optional;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import mods.battlegear2.api.IUsableItem;
+import mods.battlegear2.api.PlayerEventChild;
+import mods.battlegear2.api.weapons.IBattlegearWeapon;
+import tconstruct.client.TProxyClient;
+import tconstruct.library.TConstructRegistry;
+import tconstruct.library.tools.AbilityHelper;
+import tconstruct.library.tools.ToolCore;
+import tconstruct.library.util.TextureHelper;
+import tconstruct.tools.TinkerTools;
+import tconstruct.weaponry.TinkerWeaponry;
+import tconstruct.weaponry.client.CrosshairType;
+
 /**
- * Weapons that utilize ammo that uses the ammo system to shoot projectiles.
- * Bows,...
+ * Weapons that utilize ammo that uses the ammo system to shoot projectiles. Bows,...
  */
 @Optional.InterfaceList({
-    @Optional.Interface(modid = "battlegear2", iface = "mods.battlegear2.api.weapons.IBattlegearWeapon"),
-    @Optional.Interface(modid = "ZeldaItemAPI", iface = "zeldaswordskills.api.item.ISword"),
-    @Optional.Interface(modid = "DynamicSkillsAPI", iface = "dynamicswordskills.api.ISword")
-})
-public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IWindup, IBattlegearWeapon, IUsableItem, zeldaswordskills.api.item.ISword, dynamicswordskills.api.ISword {
+        @Optional.Interface(modid = "battlegear2", iface = "mods.battlegear2.api.weapons.IBattlegearWeapon"),
+        @Optional.Interface(modid = "ZeldaItemAPI", iface = "zeldaswordskills.api.item.ISword"),
+        @Optional.Interface(modid = "DynamicSkillsAPI", iface = "dynamicswordskills.api.ISword") })
+public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IWindup, IBattlegearWeapon, IUsableItem,
+        zeldaswordskills.api.item.ISword, dynamicswordskills.api.ISword {
+
     public ProjectileWeapon(int baseDamage, String name) {
         super(baseDamage);
 
@@ -67,6 +66,7 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
 
     /**
      * Searches the player for ammo to use
+     * 
      * @param player the player
      * @return the itemstack found to be ammo
      */
@@ -74,27 +74,27 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
 
     /**
      * Creates the projectile to be fired.
-     * @param ammo The ammo used
-     * @param world world.
-     * @param player player.
-     * @param speed the speed calculated for the projectile
+     * 
+     * @param ammo     The ammo used
+     * @param world    world.
+     * @param player   player.
+     * @param speed    the speed calculated for the projectile
      * @param accuracy the accuracy calculated for the projectile
      * @return A banana.
      */
-    protected abstract Entity createProjectile(ItemStack ammo, World world, EntityPlayer player, float speed, float accuracy, float windup);
-
+    protected abstract Entity createProjectile(ItemStack ammo, World world, EntityPlayer player, float speed,
+            float accuracy, float windup);
 
     /* Accuracy */
     public abstract float minAccuracy(ItemStack itemStack);
+
     public abstract float maxAccuracy(ItemStack itemStack);
 
-    public float getAccuracy(ItemStack itemStack, EntityPlayer player)
-    {
-        return getAccuracy(itemStack, getMaxItemUseDuration(itemStack) -  player.getItemInUseCount());
+    public float getAccuracy(ItemStack itemStack, EntityPlayer player) {
+        return getAccuracy(itemStack, getMaxItemUseDuration(itemStack) - player.getItemInUseCount());
     }
 
-    public float getAccuracy(ItemStack itemStack, int time)
-    {
+    public float getAccuracy(ItemStack itemStack, int time) {
         float dif = minAccuracy(itemStack) - maxAccuracy(itemStack);
 
         return minAccuracy(itemStack) - dif * getWindupProgress(itemStack, time);
@@ -102,40 +102,32 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
 
     /* Windup */
     public int getWindupTime(ItemStack itemStack) {
-        if(itemStack == null || !itemStack.hasTagCompound())
-            return 1;
-        
+        if (itemStack == null || !itemStack.hasTagCompound()) return 1;
+
         NBTTagCompound toolTag = itemStack.getTagCompound().getCompoundTag("InfiTool");
         return toolTag.getInteger("DrawSpeed");
     }
 
-    public float getWindupProgress(ItemStack itemStack, EntityPlayer player)
-    {
+    public float getWindupProgress(ItemStack itemStack, EntityPlayer player) {
         // what are you doing!
-        if(player.inventory.getCurrentItem() != itemStack)
-            return 0f;
+        if (player.inventory.getCurrentItem() != itemStack) return 0f;
 
         // are we using it?
-        if(player.getItemInUse() == null)
-            return 0f;
+        if (player.getItemInUse() == null) return 0f;
 
-        return getWindupProgress(itemStack, getMaxItemUseDuration(itemStack) -  player.getItemInUseCount());
+        return getWindupProgress(itemStack, getMaxItemUseDuration(itemStack) - player.getItemInUseCount());
     }
 
-    public float getWindupProgress(ItemStack itemStack, int timeInUse)
-    {
+    public float getWindupProgress(ItemStack itemStack, int timeInUse) {
         float time = (float) timeInUse;
         float windup = getWindupTime(itemStack);
-        if(time > windup)
-            return 1.0f;
+        if (time > windup) return 1.0f;
 
-        return time/windup;
+        return time / windup;
     }
 
-    public float getProjectileSpeed(ItemStack itemStack)
-    {
-        if (itemStack != null && itemStack.hasTagCompound())
-        {
+    public float getProjectileSpeed(ItemStack itemStack) {
+        if (itemStack != null && itemStack.hasTagCompound()) {
             NBTTagCompound toolTag = itemStack.getTagCompound().getCompoundTag("InfiTool");
             return toolTag.getFloat("FlightSpeed");
         }
@@ -154,34 +146,29 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     }
 
     @Override
-    public ItemStack onItemRightClick (ItemStack stack, World world, EntityPlayer player)
-    {
-        if(getWindupTime(stack) == 0.0f)
-            return stack;
+    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
+        if (getWindupTime(stack) == 0.0f) return stack;
 
         // broken tool?
-        if(stack.hasTagCompound() && stack.getTagCompound().hasKey(getBaseTagName()) && stack.getTagCompound().getCompoundTag(getBaseTagName()).getBoolean("Broken"))
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(getBaseTagName())
+                && stack.getTagCompound().getCompoundTag(getBaseTagName()).getBoolean("Broken"))
             return stack;
 
         // only if ammo is present
-        if(searchForAmmo(player, stack) != null)
-            player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
+        if (searchForAmmo(player, stack) != null) player.setItemInUse(stack, this.getMaxItemUseDuration(stack));
         return stack;
     }
 
     @Override
-    public void onPlayerStoppedUsing (ItemStack weapon, World world, EntityPlayer player, int useRemaining)
-    {
-        if (!weapon.hasTagCompound())
-            return;
+    public void onPlayerStoppedUsing(ItemStack weapon, World world, EntityPlayer player, int useRemaining) {
+        if (!weapon.hasTagCompound()) return;
 
         int time = this.getMaxItemUseDuration(weapon) - useRemaining;
 
         // we abuse the arrowLooseEvent for all projectiles
         ArrowLooseEvent event = new ArrowLooseEvent(player, weapon, time);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled())
-        {
+        if (event.isCanceled()) {
             return;
         }
         time = event.charge;
@@ -190,8 +177,7 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
         ItemStack ammo = searchForAmmo(player, weapon);
 
         // no ammo found. :(
-        if(ammo == null)
-            return;
+        if (ammo == null) return;
 
         NBTTagCompound toolTag = weapon.getTagCompound().getCompoundTag("InfiTool");
         float projectileSpeed = getProjectileSpeed(weapon);
@@ -199,73 +185,64 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
         float accuracy = getAccuracy(weapon, time);
 
         // needs a minimum windup
-        if(windup < this.getMinWindupProgress(weapon))
-            return;
+        if (windup < this.getMinWindupProgress(weapon)) return;
 
         // take windup time into account
         projectileSpeed *= windup;
 
         Entity projectile = createProjectile(ammo, world, player, projectileSpeed, accuracy, windup);
 
-
         int reinforced = 0;
-        if (toolTag.hasKey("Unbreaking"))
-            reinforced = toolTag.getInteger("Unbreaking");
+        if (toolTag.hasKey("Unbreaking")) reinforced = toolTag.getInteger("Unbreaking");
 
-        if (random.nextInt(10) < 10 - reinforced)
-            AbilityHelper.damageTool(weapon, 1, player, false);
+        if (random.nextInt(10) < 10 - reinforced) AbilityHelper.damageTool(weapon, 1, player, false);
 
         playFiringSound(world, player, weapon, ammo, projectileSpeed, accuracy);
 
-
         // use up ammo
-        if(!player.capabilities.isCreativeMode) {
-            if (ammo.getItem() instanceof IAmmo)
-                ((IAmmo) ammo.getItem()).consumeAmmo(1, ammo);
-            else
-                player.inventory.consumeInventoryItem(ammo.getItem());
+        if (!player.capabilities.isCreativeMode) {
+            if (ammo.getItem() instanceof IAmmo) ((IAmmo) ammo.getItem()).consumeAmmo(1, ammo);
+            else player.inventory.consumeInventoryItem(ammo.getItem());
         }
 
         // FIREEEEEEE
-        if (!world.isRemote)
-            world.spawnEntityInWorld(projectile);
+        if (!world.isRemote) world.spawnEntityInWorld(projectile);
     }
 
-    public abstract void playFiringSound(World world, EntityPlayer player, ItemStack weapon, ItemStack ammo, float speed, float accuracy);
+    public abstract void playFiringSound(World world, EntityPlayer player, ItemStack weapon, ItemStack ammo,
+            float speed, float accuracy);
 
-    public HashMap<Integer, IIcon[]> animationHeadIcons = new HashMap<Integer, IIcon[]>();
-    public HashMap<Integer, IIcon[]> animationHandleIcons = new HashMap<Integer, IIcon[]>();
-    public HashMap<Integer, IIcon[]> animationAccessoryIcons = new HashMap<Integer, IIcon[]>();
-    public HashMap<Integer, IIcon[]> animationExtraIcons = new HashMap<Integer, IIcon[]>();
-    public HashMap<Integer, IIcon[]> animationEffectIcons = new HashMap<Integer, IIcon[]>();
+    public HashMap<Integer, IIcon[]> animationHeadIcons = new HashMap<>();
+    public HashMap<Integer, IIcon[]> animationHandleIcons = new HashMap<>();
+    public HashMap<Integer, IIcon[]> animationAccessoryIcons = new HashMap<>();
+    public HashMap<Integer, IIcon[]> animationExtraIcons = new HashMap<>();
+    public HashMap<Integer, IIcon[]> animationEffectIcons = new HashMap<>();
 
     /**
-     * return true if the current renderpass should use animations.
-     * 0 == handle
-     * 1 == head
-     * 2 == accessory
-     * 3 == extra
+     * return true if the current renderpass should use animations. 0 == handle 1 == head 2 == accessory 3 == extra
      */
-    protected boolean animateLayer(int renderPass)
-    {
+    protected boolean animateLayer(int renderPass) {
         return false;
     }
 
     @Override
     public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining) {
-        NBTTagCompound tags = stack.getTagCompound().getCompoundTag("InfiTool");
+        NBTTagCompound tags = null;
 
-        if(tags == null || renderPass > 10)
-            return super.getIcon(stack, renderPass, player, usingItem, useRemaining);
+        if (stack.hasTagCompound()) tags = stack.getTagCompound().getCompoundTag("InfiTool");
+
+        if (tags == null || renderPass > 10) return super.getIcon(stack, renderPass, player, usingItem, useRemaining);
 
         // are we drawing an effect?
-        if(renderPass >= getPartAmount()) {
+        if (renderPass >= getPartAmount()) {
             // is the effect animated?
             String effect = "Effect" + (1 + renderPass - getPartAmount());
-            if(tags.hasKey(effect)) {
+            if (tags.hasKey(effect)) {
                 int index = tags.getInteger(effect);
-                if(animationEffectIcons.get(index) != null)
-                    return getCorrectAnimationIcon(animationEffectIcons, index, getWindupProgress(usingItem, getMaxItemUseDuration(usingItem) - useRemaining));
+                if (animationEffectIcons.get(index) != null) return getCorrectAnimationIcon(
+                        animationEffectIcons,
+                        index,
+                        getWindupProgress(usingItem, getMaxItemUseDuration(usingItem) - useRemaining));
                 else
                     // non-animated
                     return effectIcons.get(index);
@@ -274,35 +251,35 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
         }
 
         // animate?
-        if(!animateLayer(renderPass))
-            return super.getIcon(stack, renderPass, player, usingItem, useRemaining);
+        if (!animateLayer(renderPass)) return super.getIcon(stack, renderPass, player, usingItem, useRemaining);
 
-        if(usingItem == null || stack != usingItem || !stack.hasTagCompound())
+        if (usingItem == null || stack != usingItem || !stack.hasTagCompound())
             return super.getIcon(stack, renderPass, player, usingItem, useRemaining);
 
         float progress = getWindupProgress(usingItem, getMaxItemUseDuration(usingItem) - useRemaining);
         // get the correct icon
-        switch (renderPass)
-        {
-            case 0: return getCorrectAnimationIcon(animationHandleIcons, tags.getInteger("RenderHandle"), progress);
-            case 1: return getCorrectAnimationIcon(animationHeadIcons, tags.getInteger("RenderHead"), progress);
-            case 2: return getCorrectAnimationIcon(animationAccessoryIcons, tags.getInteger("RenderAccessory"), progress);
-            case 3: return getCorrectAnimationIcon(animationExtraIcons, tags.getInteger("RenderExtra"), progress);
+        switch (renderPass) {
+            case 0:
+                return getCorrectAnimationIcon(animationHandleIcons, tags.getInteger("RenderHandle"), progress);
+            case 1:
+                return getCorrectAnimationIcon(animationHeadIcons, tags.getInteger("RenderHead"), progress);
+            case 2:
+                return getCorrectAnimationIcon(animationAccessoryIcons, tags.getInteger("RenderAccessory"), progress);
+            case 3:
+                return getCorrectAnimationIcon(animationExtraIcons, tags.getInteger("RenderExtra"), progress);
         }
 
         return emptyIcon;
     }
 
-    protected IIcon getCorrectAnimationIcon(Map<Integer, IIcon[]> icons, int id, float progress)
-    {
+    protected IIcon getCorrectAnimationIcon(Map<Integer, IIcon[]> icons, int id, float progress) {
         // animation count, standard texture as reference
         float count = icons.get(-1).length - 1;
         int step = Math.round(progress * count);
 
         step = Math.max(0, step);
 
-        if(icons.containsKey(id))
-            return icons.get(id)[step];
+        if (icons.containsKey(id)) return icons.get(id)[step];
 
         // default icon
         return icons.get(-1)[step];
@@ -311,40 +288,30 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     @Override
     @SideOnly(Side.CLIENT)
     // exactly the same as the ToolCore one but with broken check for Handle instead of Head
-    public IIcon getIcon (ItemStack stack, int renderPass)
-    {
+    public IIcon getIcon(ItemStack stack, int renderPass) {
         NBTTagCompound tags = stack.getTagCompound();
 
-        if (tags != null)
-        {
+        if (tags != null) {
             tags = stack.getTagCompound().getCompoundTag("InfiTool");
-            if (renderPass < getPartAmount())
-            {
+            if (renderPass < getPartAmount()) {
                 // Handle
                 if (renderPass == 0) {
-                    if (tags.getBoolean("Broken"))
-                        return getCorrectIcon(brokenIcons, tags.getInteger("RenderHandle"));
-                    else
-                        return getCorrectIcon(handleIcons, tags.getInteger("RenderHandle"));
+                    if (tags.getBoolean("Broken")) return getCorrectIcon(brokenIcons, tags.getInteger("RenderHandle"));
+                    else return getCorrectIcon(handleIcons, tags.getInteger("RenderHandle"));
                 }
-                    // Head
-                else if (renderPass == 1)
-                {
+                // Head
+                else if (renderPass == 1) {
                     return getCorrectIcon(headIcons, tags.getInteger("RenderHead"));
                 }
                 // Accessory
-                else if (renderPass == 2)
-                    return getCorrectIcon(accessoryIcons, tags.getInteger("RenderAccessory"));
-                    // Extra
-                else if (renderPass == 3)
-                    return getCorrectIcon(extraIcons, tags.getInteger("RenderExtra"));
+                else if (renderPass == 2) return getCorrectIcon(accessoryIcons, tags.getInteger("RenderAccessory"));
+                // Extra
+                else if (renderPass == 3) return getCorrectIcon(extraIcons, tags.getInteger("RenderExtra"));
             }
             // Effects
-            else if (renderPass <= 10)
-            {
+            else if (renderPass <= 10) {
                 String effect = "Effect" + (1 + renderPass - getPartAmount());
-                if(tags.hasKey(effect))
-                    return effectIcons.get(tags.getInteger(effect));
+                if (tags.hasKey(effect)) return effectIcons.get(tags.getInteger(effect));
             }
             return blankSprite;
         }
@@ -363,73 +330,60 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
         // animated effects...
         // find out the longest animation
         int count = 0;
-        if(animationHeadIcons.get(-1) != null)
-            count = Math.max(count, animationHeadIcons.get(-1).length);
-        if(animationHandleIcons.get(-1) != null)
-            count = Math.max(count, animationHandleIcons.get(-1).length);
-        if(animationAccessoryIcons.get(-1) != null)
-            count = Math.max(count, animationAccessoryIcons.get(-1).length);
-        if(animationExtraIcons.get(-1) != null)
-            count = Math.max(count, animationExtraIcons.get(-1).length);
+        if (animationHeadIcons.get(-1) != null) count = Math.max(count, animationHeadIcons.get(-1).length);
+        if (animationHandleIcons.get(-1) != null) count = Math.max(count, animationHandleIcons.get(-1).length);
+        if (animationAccessoryIcons.get(-1) != null) count = Math.max(count, animationAccessoryIcons.get(-1).length);
+        if (animationExtraIcons.get(-1) != null) count = Math.max(count, animationExtraIcons.get(-1).length);
 
-
-        for(Map.Entry<Integer, String> entry : effectStrings.entrySet())
-        {
+        for (Map.Entry<Integer, String> entry : effectStrings.entrySet()) {
             IIcon[] anims = new IIcon[count];
             boolean empty = true;
-            for(int i = 0; i < count; i++) {
-                String tex = entry.getValue() + "_" + (i+1);
+            for (int i = 0; i < count; i++) {
+                String tex = entry.getValue() + "_" + (i + 1);
                 if (TextureHelper.itemTextureExists(tex)) {
                     anims[i] = iconRegister.registerIcon(tex);
                     empty = false;
                 }
             }
-            if(!empty)
-                animationEffectIcons.put(entry.getKey(), anims);
+            if (!empty) animationEffectIcons.put(entry.getKey(), anims);
         }
 
         // default for effects is blank
         IIcon[] anims = new IIcon[count];
-        for(int i = 0; i < count; i++)
-            anims[i] = blankSprite;
+        for (int i = 0; i < count; i++) anims[i] = blankSprite;
         animationEffectIcons.put(-1, anims);
     }
 
-    private void addAnimationIcons(HashMap<Integer, String> textures, HashMap<Integer, IIcon[]> icons, IIconRegister iconRegister, String standard)
-    {
+    private void addAnimationIcons(HashMap<Integer, String> textures, HashMap<Integer, IIcon[]> icons,
+            IIconRegister iconRegister, String standard) {
         icons.clear();
 
         // we use the standard to determine how many animations there are
-        if(standard == null || standard.isEmpty())
-            return;
+        if (standard == null || standard.isEmpty()) return;
 
         int count = 1;
-        standard =  getDefaultTexturePath() + "/" + standard;
-        while(TextureHelper.itemTextureExists(standard + "_" + count))
-            count++;
+        standard = getDefaultTexturePath() + "/" + standard;
+        while (TextureHelper.itemTextureExists(standard + "_" + count)) count++;
 
         count--;
 
         // add the standard icons
         IIcon[] anims = new IIcon[count];
-        for(int i = 0; i < count; i++)
-            anims[i] = iconRegister.registerIcon(standard + "_" + (i+1));
+        for (int i = 0; i < count; i++) anims[i] = iconRegister.registerIcon(standard + "_" + (i + 1));
         icons.put(-1, anims);
 
         // now do the same for each entry
-        for(Map.Entry<Integer, String> entry : textures.entrySet())
-        {
+        for (Map.Entry<Integer, String> entry : textures.entrySet()) {
             anims = new IIcon[count];
             boolean empty = true;
-            for(int i = 0; i < count; i++) {
-                String tex = entry.getValue() + "_" + (i+1);
+            for (int i = 0; i < count; i++) {
+                String tex = entry.getValue() + "_" + (i + 1);
                 if (TextureHelper.itemTextureExists(tex)) {
                     anims[i] = iconRegister.registerIcon(tex);
                     empty = false;
                 }
             }
-            if(!empty)
-                icons.put(entry.getKey(), anims);
+            if (!empty) icons.put(entry.getKey(), anims);
         }
     }
 
@@ -438,29 +392,25 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4) {
         super.addInformation(stack, player, list, par4);
 
-        if(!stack.hasTagCompound())
-            return;
+        if (!stack.hasTagCompound()) return;
 
         // also display max damage with current ammo
         ItemStack currentAmmo = searchForAmmo(player, stack);
-        if(currentAmmo == null)
-            return;
+        if (currentAmmo == null) return;
 
         float damage;
-        if(currentAmmo.getItem() == Items.arrow) {
+        if (currentAmmo.getItem() == Items.arrow) {
             damage = 2 * getProjectileSpeed(stack);
-        }
-        else if(currentAmmo.getItem() instanceof AmmoItem && currentAmmo.hasTagCompound()) {
+        } else if (currentAmmo.getItem() instanceof AmmoItem && currentAmmo.hasTagCompound()) {
             NBTTagCompound tags = currentAmmo.getTagCompound().getCompoundTag("InfiTool");
-            if(!tags.hasKey("BaseAttack"))
-            {
+            if (!tags.hasKey("BaseAttack")) {
                 // quickly calculate the base attack damage from the actual attack damage and quartz modifiers
-                // yes, this relies on quartz being the only modifier that modifiers damage, but at the point of writing this
+                // yes, this relies on quartz being the only modifier that modifiers damage, but at the point of writing
+                // this
                 // that is the case, and later tools should have the tag
                 int atk = tags.getInteger("Attack");
-                if(tags.hasKey("ModAttack"))
-                {
-                    int bonusDmg = tags.getIntArray("ModAttack")[0]/24 + 1;
+                if (tags.hasKey("ModAttack")) {
+                    int bonusDmg = tags.getIntArray("ModAttack")[0] / 24 + 1;
                     atk -= bonusDmg;
                 }
                 tags.setInteger("BaseAttack", atk);
@@ -472,44 +422,46 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
             damage = baseAttack * getProjectileSpeed(stack);
             damage += (totalAttack - baseAttack);
 
-            if(currentAmmo.getItem() == TinkerWeaponry.arrowAmmo || currentAmmo.getItem() == TinkerWeaponry.boltAmmo)
-                damage = Math.max(0, damage - currentAmmo.getTagCompound().getCompoundTag("InfiTool").getInteger("Attack")/2f);
+            if (currentAmmo.getItem() == TinkerWeaponry.arrowAmmo || currentAmmo.getItem() == TinkerWeaponry.boltAmmo)
+                damage = Math.max(
+                        0,
+                        damage - currentAmmo.getTagCompound().getCompoundTag("InfiTool").getInteger("Attack") / 2f);
 
             damage *= ((AmmoItem) currentAmmo.getItem()).getDamageModifier();
 
             // since most arrows will be criticals, we factor in an average crit
-            if(currentAmmo.getItem() == TinkerWeaponry.arrowAmmo || currentAmmo.getItem() == TinkerWeaponry.boltAmmo)
-                damage += (0.5f/4f + Math.min(0.75f, getProjectileSpeed(stack)/25f)) * (damage / 2f + 2f);
-        }
-        else
-            return;
+            if (currentAmmo.getItem() == TinkerWeaponry.arrowAmmo || currentAmmo.getItem() == TinkerWeaponry.boltAmmo)
+                damage += (0.5f / 4f + Math.min(0.75f, getProjectileSpeed(stack) / 25f)) * (damage / 2f + 2f);
+        } else return;
 
         // convert to hearts
         damage /= 2;
 
-        list.remove(list.size()-1); // remove last item (the damage of the bow itself)
+        list.remove(list.size() - 1); // remove last item (the damage of the bow itself)
         list.add(currentAmmo.getDisplayName());
-        list.add(StatCollector.translateToLocal("attribute.name.ammo.maxAttackDamage") + ": " + TProxyClient.df.format(damage));
+        list.add(
+                StatCollector.translateToLocal("attribute.name.ammo.maxAttackDamage") + ": "
+                        + TProxyClient.df.format(damage));
     }
-	
+
     /*---- Battlegear Support START ----*/
 
     @Override
     @Optional.Method(modid = "battlegear2")
-    public boolean sheatheOnBack(ItemStack item)
-    {
+    public boolean sheatheOnBack(ItemStack item) {
         return true;
     }
 
     @Override
     @Optional.Method(modid = "battlegear2")
     public boolean isOffhandHandDual(ItemStack off) {
-        return false;
+        return true;
     }
 
     @Override
     @Optional.Method(modid = "battlegear2")
-    public boolean offhandAttackEntity(PlayerEventChild.OffhandAttackEvent event, ItemStack mainhandItem, ItemStack offhandItem) {
+    public boolean offhandAttackEntity(PlayerEventChild.OffhandAttackEvent event, ItemStack mainhandItem,
+            ItemStack offhandItem) {
         return false;
     }
 
@@ -534,11 +486,13 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     @Override
     @Optional.Method(modid = "battlegear2")
     public boolean allowOffhand(ItemStack mainhand, ItemStack offhand) {
-        if(offhand == null || offhand.getItem() instanceof AmmoItem)
-            return true;
-		 return false;
+        if (offhand == null || offhand.getItem() instanceof AmmoItem) return true;
+        return (mainhand != null && mainhand.getItem() != TinkerTools.cleaver
+                && mainhand.getItem() != TinkerTools.battleaxe)
+                && (offhand.getItem() != TinkerTools.cleaver && offhand.getItem() != TinkerTools.battleaxe);
+
     }
-	
+
     /*---- Battlegear Support UseItem ----*/
 
     @Override
@@ -546,7 +500,7 @@ public abstract class ProjectileWeapon extends ToolCore implements IAccuracy, IW
     public boolean isUsedOverAttack(ItemStack item) {
         return true;
     }
-	
 
-    /*---- Battlegear Support END ----*/	
+    /*---- Battlegear Support END ----*/
+
 }

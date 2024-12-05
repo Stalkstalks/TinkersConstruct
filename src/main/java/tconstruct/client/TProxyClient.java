@@ -2,16 +2,23 @@ package tconstruct.client;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import javax.xml.parsers.*;
 
-import mantle.client.SmallFontRenderer;
-import mantle.lib.client.MantleClientRegistry;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.init.*;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
+
 import org.w3c.dom.Document;
+
+import cpw.mods.fml.common.Loader;
+import mantle.client.SmallFontRenderer;
+import mantle.lib.client.MantleClientRegistry;
 import tconstruct.TConstruct;
 import tconstruct.armor.ArmorProxyClient;
 import tconstruct.armor.player.TPlayerStats;
@@ -19,6 +26,7 @@ import tconstruct.common.TProxyCommon;
 import tconstruct.tools.items.ManualInfo;
 
 public class TProxyClient extends TProxyCommon {
+
     public static DecimalFormat df = new DecimalFormat("##.#");
 
     /* TODO: Split this class up into its respective parts */
@@ -35,7 +43,11 @@ public class TProxyClient extends TProxyCommon {
     /* Registers any rendering code. */
     public void registerRenderer() {
         Minecraft mc = Minecraft.getMinecraft();
-        smallFontRenderer = new SmallFontRenderer(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), mc.renderEngine, false);
+        smallFontRenderer = new SmallFontRenderer(
+                mc.gameSettings,
+                new ResourceLocation("textures/font/ascii.png"),
+                mc.renderEngine,
+                false);
     }
 
     public static Document diary;
@@ -46,6 +58,15 @@ public class TProxyClient extends TProxyCommon {
     public static ManualInfo manualData;
 
     public void readManuals() {
+        initManualIcons();
+        initManualRecipes();
+        initManualPages();
+        if (!Loader.isModLoaded("dreamcraft")) {
+            readTinkersConstructManuals();
+        }
+    }
+
+    private void readTinkersConstructManuals() {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         String CurrentLanguage = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
 
@@ -59,11 +80,9 @@ public class TProxyClient extends TProxyCommon {
         volume1 = volume1_cl != null ? volume1_cl : readManual("/assets/tinker/manuals/en_US/firstday.xml", dbFactory);
         volume2 = volume2_cl != null ? volume2_cl : readManual("/assets/tinker/manuals/en_US/materials.xml", dbFactory);
         smelter = smelter_cl != null ? smelter_cl : readManual("/assets/tinker/manuals/en_US/smeltery.xml", dbFactory);
-        weaponry = weaponry_cl != null ? weaponry_cl : readManual("/assets/tinker/manuals/en_US/weaponry.xml", dbFactory);
+        weaponry = weaponry_cl != null ? weaponry_cl
+                : readManual("/assets/tinker/manuals/en_US/weaponry.xml", dbFactory);
 
-        initManualIcons();
-        initManualRecipes();
-        initManualPages();
         manualData = new ManualInfo();
     }
 
@@ -96,12 +115,9 @@ public class TProxyClient extends TProxyCommon {
         MantleClientRegistry.registerManualIcon("netherrack", new ItemStack(Blocks.netherrack));
     }
 
-    public void initManualRecipes() {
-    }
+    public void initManualRecipes() {}
 
-    void initManualPages() {
-
-    }
+    void initManualPages() {}
 
     public static Document getManualFromStack(ItemStack stack) {
         switch (stack.getItemDamage()) {
@@ -121,5 +137,4 @@ public class TProxyClient extends TProxyCommon {
     public void recalculateHealth() {
         ArmorProxyClient.armorExtended.recalculateHealth(mc.thePlayer, TPlayerStats.get(mc.thePlayer));
     }
-
 }

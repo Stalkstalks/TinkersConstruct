@@ -1,41 +1,33 @@
 package tconstruct.library.crafting;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraftforge.fluids.FluidStack;
 
-public class AlloyMix
-{
+public class AlloyMix {
+
     public final FluidStack result;
     public final List<FluidStack> mixers;
 
-    public AlloyMix(FluidStack output, List<FluidStack> inputs)
-    {
+    public AlloyMix(FluidStack output, List<FluidStack> inputs) {
         result = output;
         mixers = inputs;
     }
 
     /*
-     * public boolean matches(List liquids) { ArrayList list = new
-     * ArrayList(mixers); return false; }
+     * public boolean matches(List liquids) { ArrayList list = new ArrayList(mixers); return false; }
      */
 
-    public FluidStack mix (ArrayList<FluidStack> liquids)
-    {
-        ArrayList<FluidStack> copyMix = new ArrayList(mixers);
-        ArrayList effectiveAmount = new ArrayList();
+    public FluidStack mix(List<FluidStack> liquids) {
+        ArrayList<FluidStack> copyMix = new ArrayList<>(mixers);
+        ArrayList<Integer> effectiveAmount = new ArrayList<>();
 
-        for (int i = 0; i < liquids.size(); i++)
-        {
-            FluidStack liquid = liquids.get(i);
-            Iterator iter = copyMix.iterator();
-            while (iter.hasNext())
-            {
-                FluidStack mixer = (FluidStack) iter.next();
-                if (mixer.isFluidEqual(liquid))
-                {
+        for (FluidStack liquid : liquids) {
+            for (FluidStack mixer : copyMix) {
+                if (mixer.isFluidEqual(liquid)) {
                     // do we actually have enough of that liquid?
-                    if(liquid.amount < mixer.amount)
-                        break;
+                    if (liquid.amount < mixer.amount) break;
 
                     int eAmt = liquid.amount / mixer.amount;
                     effectiveAmount.add(eAmt);
@@ -45,28 +37,21 @@ public class AlloyMix
             }
         }
 
-        if (copyMix.size() > 0)
-            return null;
+        if (copyMix.size() > 0) return null;
 
         // Remove old liquids
         int low = getLowestAmount(effectiveAmount);
-        ArrayList<FluidStack> copyMix2 = new ArrayList(mixers);
+        ArrayList<FluidStack> copyMix2 = new ArrayList<>(mixers);
 
-        for (int i = 0; i < liquids.size(); i++)
-        {
+        for (int i = 0; i < liquids.size(); i++) {
             FluidStack liquid = liquids.get(i);
-            Iterator iter = copyMix2.iterator();
-            while (iter.hasNext())
-            {
-                FluidStack mixer = (FluidStack) iter.next();
+            for (FluidStack mixer : copyMix2) {
                 // if (mixer.itemID == liquid.itemID && mixer.itemMeta ==
                 // liquid.itemMeta)
-                if (mixer.isFluidEqual(liquid))
-                {
+                if (mixer.isFluidEqual(liquid)) {
                     int eAmt = low * mixer.amount;
                     liquid.amount -= eAmt;
-                    if (liquid.amount <= 0)
-                    {
+                    if (liquid.amount <= 0) {
                         liquids.remove(liquid);
                         i--;
                     }
@@ -81,15 +66,14 @@ public class AlloyMix
         return ret;
     }
 
-    int getLowestAmount (ArrayList list)
-    {
-        int frist = (Integer) list.get(0); // FRIST!!!
-        for (int i = 1; i < list.size(); i++)
-        {
-            int compare = (Integer) list.get(i);
-            if (frist > compare)
-                frist = compare;
+    int getLowestAmount(ArrayList<Integer> list) {
+        int first = list.get(0);
+        for (int i = 1; i < list.size(); i++) {
+            int compare = list.get(i);
+            if (first > compare) {
+                first = compare;
+            }
         }
-        return frist;
+        return first;
     }
 }
