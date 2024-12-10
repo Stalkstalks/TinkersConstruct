@@ -77,7 +77,7 @@ public class HealthBarRenderer extends Gui {
         final int healthLast = MathHelper.ceiling_float_int(mc.thePlayer.prevHealth);
         final float healthMax = Math.min(20F, (float) attrMaxHealth.getAttributeValue());
         final float absorb = mc.thePlayer.getAbsorptionAmount();
-        final float absorbMax = Math.min(20F, (float) absorb);
+        final float absorbMax = Math.min(20F, absorb);
 
         final int healthRows = MathHelper.ceiling_float_int((healthMax + absorbMax) / 2.0F / 10.0F);
         final int rowHeight = Math.max(10 - (healthRows - 2), 3);
@@ -130,13 +130,13 @@ public class HealthBarRenderer extends Gui {
             }
 
             if (absorbRemaining > 0.0F) {
-                if (absorbRemaining == absorbMax && absorb % 2.0F == 1.0F) {
+                if (absorbRemaining == absorbMax && absorbMax % 2.0F == 1.0F) {
                     this.drawTexturedModalRect(x, y, MARGIN + 45, TOP, 9, 9); // half heart absorption texture
                 } else {
                     this.drawTexturedModalRect(x, y, MARGIN + 36, TOP, 9, 9); // full heart absorption texture
                 }
                 absorbRemaining -= 2.0F;
-            } else if (i * 2 + 1 < health) {
+            } else {
                 // only draw red vanilla hearts when it won't be covered by tinkers' hearts
                 if (i * 2 + 1 < health) {
                     this.drawTexturedModalRect(x, y, MARGIN + 36, TOP, 9, 9); // full heart texture
@@ -146,7 +146,7 @@ public class HealthBarRenderer extends Gui {
             }
         }
 
-        if (health > 20) {
+        if (health > 20 || absorb > 0) {
             // Render tinkers' hearts
             mc.getTextureManager().bindTexture(TINKER_HEARTS);
             for (int i = Math.max(0, health / 20 - 2); i < health / 20; i++) {
@@ -163,6 +163,32 @@ public class HealthBarRenderer extends Gui {
                 }
                 if (health % 2 == 1 && heartIndexMax < 10) {
                     int y = 0;
+                    if (heartIndexMax == regen) y -= 2;
+                    // half heart texture
+                    this.drawTexturedModalRect(
+                            xBasePos + 8 * heartIndexMax,
+                            yBasePos + y,
+                            9 + 18 * i,
+                            tinkerTextureY,
+                            9,
+                            9);
+                }
+            }
+            int intAbsorb = MathHelper.ceiling_float_int(absorb);
+            for (int i = 0; i < intAbsorb / 20; i++) {
+                // uncomment the line below to help with debugging
+                // yBasePos -=20;
+                final int heartIndexMax = Math.min(10, (intAbsorb - 20 * (i + 1)) / 2);
+                for (int j = 0; j < heartIndexMax; j++) {
+                    int y = -10;
+                    if (j == regen) y -= 2;
+                    // if ((i + 1) * 20 + j * 2 + 21 >= intAbsorb) {
+                    // full heart texture
+                    this.drawTexturedModalRect(xBasePos + 8 * j, yBasePos + y, 18 * i, tinkerTextureY, 9, 9);
+                    // }
+                }
+                if (intAbsorb % 2 == 1 && heartIndexMax < 10) {
+                    int y = -10;
                     if (heartIndexMax == regen) y -= 2;
                     // half heart texture
                     this.drawTexturedModalRect(
